@@ -11,7 +11,7 @@
  Target Server Version : 80034
  File Encoding         : 65001
 
- Date: 04/05/2025 23:42:41
+ Date: 05/05/2025 06:54:36
 */
 
 SET NAMES utf8mb4;
@@ -144,6 +144,7 @@ CREATE TABLE `participation_record`  (
 INSERT INTO `participation_record` VALUES (1, 4);
 INSERT INTO `participation_record` VALUES (2, 4);
 INSERT INTO `participation_record` VALUES (2, 6);
+INSERT INTO `participation_record` VALUES (3, 4);
 
 -- ----------------------------
 -- Table structure for problem
@@ -164,7 +165,7 @@ CREATE TABLE `problem`  (
 -- ----------------------------
 -- Records of problem
 -- ----------------------------
-INSERT INTO `problem` VALUES (1, 4, '两数之和', '给定一个整数数组 nums 和一个整数目标值 target，请你在该数组中找出和为目标值 target 的那两个整数，并返回它们的数组下标。', 'ALGORITHM', '2025-03-01 10:00:00');
+INSERT INTO `problem` VALUES (1, 4, '两数之和', '给定一个整数数组 nums 和一个整数目标值 target，请你在该数组中找出和为目标值 target 的那两个整数，并返回它们的数组下标。', '', '2025-03-01 10:00:00');
 INSERT INTO `problem` VALUES (2, 4, '字符串匹配', '实现一个简单的字符串匹配算法，找出字符串 S 中第一次出现字符串 T 的位置。', 'ALGORITHM', '2025-03-01 10:00:00');
 INSERT INTO `problem` VALUES (3, 5, '城市交通优化', '某城市交通网络拥堵严重，请建立数学模型优化交通信号灯配时方案，以减少拥堵。', 'MODELING', '2025-03-01 10:00:00');
 INSERT INTO `problem` VALUES (4, 5, '疫情传播预测', '建立数学模型预测新型疾病在人群中的传播趋势，并提出有效的防控措施。', 'MODELING', '2025-03-01 10:00:00');
@@ -234,6 +235,7 @@ CREATE TABLE `team`  (
 -- ----------------------------
 INSERT INTO `team` VALUES (1, '教改一队', '/image/team/1.png');
 INSERT INTO `team` VALUES (2, '大角牛向前冲', '/image/team/1.png');
+INSERT INTO `team` VALUES (3, '教改2队', '/image/team/5.png');
 
 -- ----------------------------
 -- Table structure for team_member
@@ -256,11 +258,14 @@ CREATE TABLE `team_member`  (
 -- Records of team_member
 -- ----------------------------
 INSERT INTO `team_member` VALUES ('S20150322', 2, '迟尚熙', '队员');
+INSERT INTO `team_member` VALUES ('S21008020326S', 3, '韩佳樾', '队员');
 INSERT INTO `team_member` VALUES ('S21008020411', 2, '迟宽鹏', '队长');
 INSERT INTO `team_member` VALUES ('S21008020412', 1, '王睿', '队员');
 INSERT INTO `team_member` VALUES ('S21008021019', 1, '刘洋', '队长');
+INSERT INTO `team_member` VALUES ('S21008021019', 3, '刘洋', '队长');
 INSERT INTO `team_member` VALUES ('Tliutong', 2, '刘彤', '教师');
 INSERT INTO `team_member` VALUES ('Tshengyu', 1, '盛雨', '教师');
+INSERT INTO `team_member` VALUES ('Tshengyu', 3, '盛雨', '教师');
 
 -- ----------------------------
 -- Table structure for user
