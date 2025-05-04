@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/competition-common :: common_head(${myLinks}, ${myScripts})">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>比赛进行</title>
+</head>
+<body>
+<div th:replace="common/competition-common::mall-header"></div>
+<div th:replace="common/competition-common::competition-sidebar"></div>
+
+<div class="com-body">
+    <div class="com-title">比赛进行 - <span th:text="${matchDTO.matchName}">比赛名称</span></div>
+
+    <div class="alert alert-info">
+        <strong>比赛时间：</strong>
+        <span th:text="${matchDTO.matchStartTime} + ' 至 ' + ${matchDTO.matchEndTime}"></span>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h4>选择参赛团队</h4>
+        </div>
+        <div class="card-body">
+            <div th:if="${teams.size() == 0}">
+                <p>您目前没有符合条件的团队，请先 <a href="/team/create">创建团队</a> 并报名参赛。</p>
+            </div>
+            <div th:if="${teams.size() > 0}">
+                <form id="teamSelectForm">
+                    <select class="form-control" id="teamSelect">
+                        <option value="">-- 请选择团队 --</option>
+                        <option th:each="team : ${teams}" th:value="${team.id}" th:text="${team.tname}">团队名称</option>
+                    </select>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header">
+            <h4>题目列表</h4>
+        </div>
+        <div class="card-body">
+            <div th:if="${problems.size() == 0}">
+                <p>当前比赛暂无题目</p>
+            </div>
+            <div th:if="${problems.size() > 0}">
+                <div class="list-group">
+                    <a th:each="problem : ${problems}" th:href="'/competition-process/problem/' + ${problem.problemId}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1" th:text="${problem.title}">题目标题</h5>
+                            <small th:text="${problem.type}">类型</small>
+                        </div>
+                        <p class="mb-1" th:text="${#strings.abbreviate(problem.content, 100)}">题目内容预览...</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 修改文件：src/main/resources/templates/competition/process/competition-process.html -->
+    <!-- 将操作部分修改为: -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h4>操作</h4>
+        </div>
+        <div class="card-body">
+            <div class="row" th:with="userRole=${session.loggedUser.id.substring(0, 1)}">
+                <!-- 学生操作 -->
+                <div class="col-md-4" th:if="${userRole == 'S'}">
+                    <button class="btn btn-primary btn-block view-submissions-btn" disabled>查看提交记录</button>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-success btn-block view-results-btn" onclick="location.href='/competition-process/results?matchId=' + [[${matchDTO.matchId}]]">查看比赛结果</button>
+                </div>
+
+                <!-- 教师操作 -->
+                <div class="col-md-4" th:if="${userRole == 'T'}">
+                    <button class="btn btn-warning btn-block" onclick="location.href='/competition-process/evaluations?matchId=' + [[${matchDTO.matchId}]]">评审作品</button>
+                </div>
+
+                <!-- 组织者操作 -->
+                <div class="col-md-4" th:if="${userRole == 'B'}">
+                    <form th:action="@{/competition-process/generate-results}" method="post">
+                        <input type="hidden" name="matchId" th:value="${matchDTO.matchId}">
+                        <button type="submit" class="btn btn-warning btn-block">生成比赛结果</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="common/competition-common::mall-footer"></div>
+
+<script>
+    $(document).ready(function() {
+        // 团队选择变更事件
+        $('#teamSelect').change(function() {
+            const teamId = $(this).val();
+            if (teamId) {
+                $('.view-submissions-btn').prop('disabled', false);
+                $('.view-submissions-btn').click(function() {
+                    location.href = '/competition-process/submissions?teamId=' + teamId + '&matchId=' + [[${matchDTO.matchId}]];
+                });
+            } else {
+                $('.view-submissions-btn').prop('disabled', true);
+            }
+        });
+    });
+</script>
+</body>
+</html>

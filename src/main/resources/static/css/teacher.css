@@ -1,0 +1,29 @@
+/* 新建文件：src/main/resources/static/css/teacher.css */
+.teacher-theme {
+    --primary-color: #9b59b6;
+    --secondary-color: #8e44ad;
+    --accent-color: #e74c3c;
+    --text-color: #34495e;
+    --background-color: #f5f5f5;
+}
+
+body.teacher-theme {
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+.teacher-sidebar {
+    background-color: var(--primary-color);
+}
+
+.teacher-sidebar .nav-link {
+    color: white;
+}
+
+.teacher-sidebar .nav-link:hover {
+    background-color: var(--secondary-color);
+}
+
+.teacher-dashboard-card {
+    border-left: 4px solid var(--primary-color);
+}

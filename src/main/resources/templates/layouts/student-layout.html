@@ -1,0 +1,28 @@
+<!-- 新建文件：src/main/resources/templates/layouts/student-layout.html -->
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生布局</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/competition.css}">
+    <link rel="stylesheet" th:href="@{/css/student.css}"> <!-- 学生特有样式 -->
+</head>
+<body class="student-theme">
+<header th:replace="common/competition-common::mall-header"></header>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2 sidebar student-sidebar">
+            <div th:replace="common/competition-common::competition-sidebar"></div>
+        </div>
+        <div class="col-md-10 main-content">
+            <div th:replace="${content}"></div>
+        </div>
+    </div>
+</div>
+<footer th:replace="common/competition-common::mall-footer"></footer>
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/js/jquery-3.6.0.min.js}"></script>
+</body>
+</html>

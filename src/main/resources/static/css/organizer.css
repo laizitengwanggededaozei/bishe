@@ -1,0 +1,29 @@
+/* 新建文件：src/main/resources/static/css/organizer.css */
+.organizer-theme {
+    --primary-color: #3498db;
+    --secondary-color: #2980b9;
+    --accent-color: #1abc9c;
+    --text-color: #2c3e50;
+    --background-color: #ecf0f1;
+}
+
+body.organizer-theme {
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+.organizer-sidebar {
+    background-color: var(--primary-color);
+}
+
+.organizer-sidebar .nav-link {
+    color: white;
+}
+
+.organizer-sidebar .nav-link:hover {
+    background-color: var(--secondary-color);
+}
+
+.organizer-dashboard-card {
+    border-left: 4px solid var(--primary-color);
+}

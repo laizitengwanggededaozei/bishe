@@ -289,40 +289,77 @@
         </nav><!-- End Icons Navigation -->
     </header><!-- End Header -->
 </div>
-<div th:fragment="competition-sidebar" th:if="${session.loggedUser} != null">
-    <aside id="sidebar" class="sidebar">
-        <ul class="sidebar-nav" id="sidebar-nav">
-            <li class="nav-item">
-                <a class="nav-link collapsed" data-bs-target="#components-nav" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-menu-button-wide"></i><span>我的赛事</span><i class="bi bi-chevron-down ms-auto"></i>
-                </a>
-                <ul id="components-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-                    <li th:if="${session.role == '组织者'}">
-                        <a id="create-competition" href="/myCompetition">
-                            <i class="bi bi-circle"></i><span>创建赛事</span>
-                        </a>
-                    </li>
-                    <li th:if="${session.role == '组织者'}">
-                        <a id="create-match" href="/myMatch">
-                            <i class="bi bi-circle"></i><span>筹备比赛</span>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-            <li class="nav-item" th:if="${session.role != '组织者'}">
-                <a class="nav-link collapsed" data-bs-target="#team-nav" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-people"></i><span>我的团队</span><i class="bi bi-chevron-down ms-auto"></i>
-                </a>
-                <ul id="team-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-                    <li>
-                        <a id="manage-team" href="/team/manage">
-                            <i class="bi bi-circle"></i><span>管理团队</span>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-        </ul>
-    </aside><!-- End Sidebar-->
+<!-- 修改文件：src/main/resources/templates/common/competition-common.html -->
+<!-- 修改侧边栏部分: -->
+<div th:fragment="competition-sidebar" class="sidebar" th:with="userRole=${session.loggedUser != null ? session.loggedUser.id.substring(0, 1) : ''}">
+    <ul class="sidebar-nav" id="sidebar-nav">
+        <!-- 所有用户可见 -->
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="/index">
+                <i class="bi bi-grid"></i><span>首页</span>
+            </a>
+        </li>
+
+        <!-- 组织者菜单 -->
+        <li class="nav-item" th:if="${userRole == 'B'}">
+            <a class="nav-link collapsed" href="/competition/create">
+                <i class="bi bi-plus-circle"></i><span>创建比赛</span>
+            </a>
+        </li>
+        <li class="nav-item" th:if="${userRole == 'B'}">
+            <a class="nav-link collapsed" href="/competition/manage">
+                <i class="bi bi-gear"></i><span>比赛管理</span>
+            </a>
+        </li>
+
+        <!-- 教师菜单 -->
+        <li class="nav-item" th:if="${userRole == 'T'}">
+            <a class="nav-link collapsed" href="/teacher/teams">
+                <i class="bi bi-people"></i><span>指导团队</span>
+            </a>
+        </li>
+        <li class="nav-item" th:if="${userRole == 'T'}">
+            <a class="nav-link collapsed" href="/competition-process/all-evaluations">
+                <i class="bi bi-check-square"></i><span>作品评审</span>
+            </a>
+        </li>
+
+        <!-- 学生菜单 -->
+        <li class="nav-item" th:if="${userRole == 'S'}">
+            <a class="nav-link collapsed" href="/team/my-teams">
+                <i class="bi bi-people"></i><span>我的团队</span>
+            </a>
+        </li>
+        <li class="nav-item" th:if="${userRole == 'S'}">
+            <a class="nav-link collapsed" href="/team/create">
+                <i class="bi bi-plus-circle"></i><span>创建团队</span>
+            </a>
+        </li>
+
+        <!-- 比赛类型 - 所有人可见 -->
+        <li class="nav-item">
+            <a class="nav-link collapsed" data-bs-target="#competition-nav" data-bs-toggle="collapse" href="#">
+                <i class="bi bi-trophy"></i><span>比赛进行</span><i class="bi bi-chevron-down ms-auto"></i>
+            </a>
+            <ul id="competition-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                <li>
+                    <a id="programming-competitions" href="/match?id=1">
+                        <i class="bi bi-circle"></i><span>程序设计竞赛</span>
+                    </a>
+                </li>
+                <li>
+                    <a id="modeling-competitions" href="/match?id=2">
+                        <i class="bi bi-circle"></i><span>数学建模竞赛</span>
+                    </a>
+                </li>
+                <li>
+                    <a id="speaking-competitions" href="/match?id=3">
+                        <i class="bi bi-circle"></i><span>英语演讲比赛</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+    </ul>
 </div>
 
 <div class="pager-container" th:fragment="common_pager(pageInfo)">

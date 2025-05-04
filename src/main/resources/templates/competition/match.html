@@ -65,17 +65,31 @@
             <span class="name" th:text="${matchDTO.prizeDescription}">XXXXXX</span>
           </div>
         </div>
-        <div class="card-button-area">
-          <input type="hidden" name="matchId" th:value="${matchDTO.matchId}">
-          <form th:action="@{/publish}" method="post" th:if="${matchDTO.publish == 0}">
-            <input type="hidden" name="matchId" th:value="${matchDTO.matchId}">
-            <button class="card-button blue" type="submit">发布</button>
-          </form>
-          <form th:action="@{/editMatch}" method="post" th:if="${matchDTO.publish == 0}">
-            <input type="hidden" name="matchId" th:value="${matchDTO.matchId}">
-            <button class="card-button orange" type="submit">修改</button>
-          </form>
-          <button class="card-button blue" th:unless="${matchDTO.publish == 0}" th:onclick="'window.location.href=\'/team/register-competition?matchId=' + ${matchDTO.matchId} + '\''">报名</button>
+        <!-- 修改文件：src/main/resources/templates/competition/match.html -->
+        <!-- 将按钮部分修改为: -->
+        <div class="card-footer" th:with="userRole=${session.loggedUser != null ? session.loggedUser.id.substring(0, 1) : ''}">
+          <!-- 组织者操作按钮 -->
+          <div th:if="${userRole == 'B'}">
+            <button class="card-button blue" th:if="${matchDTO.publish == 0}" th:onclick="'window.location.href=\'/competition/edit?id=' + ${matchDTO.matchId} + '\''">修改</button>
+            <button class="card-button green" th:if="${matchDTO.publish == 0}" th:onclick="'javascript:ensurePublish(' + ${matchDTO.matchId} + ')'">发布</button>
+            <button class="card-button yellow" th:unless="${matchDTO.publish == 0}" th:onclick="'window.location.href=\'/competition-process/match/' + ${matchDTO.matchId} + '\''">管理比赛</button>
+          </div>
+
+          <!-- 教师操作按钮 -->
+          <div th:if="${userRole == 'T'}">
+            <button class="card-button yellow" th:unless="${matchDTO.publish == 0}" th:onclick="'window.location.href=\'/competition-process/match/' + ${matchDTO.matchId} + '\''">评审比赛</button>
+          </div>
+
+          <!-- 学生操作按钮 -->
+          <div th:if="${userRole == 'S'}">
+            <button class="card-button blue" th:unless="${matchDTO.publish == 0}" th:onclick="'window.location.href=\'/team/register-competition?matchId=' + ${matchDTO.matchId} + '\''">报名</button>
+            <button class="card-button green" th:unless="${matchDTO.publish == 0}" th:onclick="'window.location.href=\'/competition-process/match/' + ${matchDTO.matchId} + '\''">参与比赛</button>
+          </div>
+
+          <!-- 未登录用户 -->
+          <div th:if="${userRole == ''}">
+            <button class="card-button blue" th:onclick="'window.location.href=\'/login\''" th:unless="${matchDTO.publish == 0}">登录后报名</button>
+          </div>
         </div>
       </div>
     </div>

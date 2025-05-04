@@ -4,6 +4,7 @@ import neu.competition.DTO.CompetitionDTO;
 import neu.competition.DTO.MatchesDTO;
 import neu.competition.entity.Team;
 import neu.competition.entity.User;
+import neu.competition.service.CompetitionProcessService;
 import neu.competition.service.CompetitionService;
 import neu.competition.service.TeamService;
 import neu.competition.service.UserService;
@@ -25,6 +26,10 @@ public class CompetitionController {
 	private UserService userService;
 	@Autowired
 	private TeamService teamService;
+
+	// 添加以下代码:
+	@Autowired
+	private CompetitionProcessService competitionProcessService;
 
 	private String getPrefix(String id) {
 		if (id.startsWith("S")) {
