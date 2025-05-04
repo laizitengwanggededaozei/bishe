@@ -40,4 +40,5 @@ public interface CompetitionService {
     List<CompetitionDTO> selectCommend();
 
 	List<MatchesDTO> selectNewMatches();
+	List<MatchesDTO> getMatchesForEvaluation();
 }

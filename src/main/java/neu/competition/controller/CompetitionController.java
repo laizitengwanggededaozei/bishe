@@ -111,9 +111,21 @@ public class CompetitionController {
 	}
 
 	@RequestMapping("/match")
-	public String matchView(Model model, int id) {
+	public String matchView(Model model, int id, HttpSession session) {
 		MatchesDTO matchesDTO = competitionService.selectMatch(id);
 		model.addAttribute("matchDTO", matchesDTO);
+
+		// 添加判断用户是否已有参赛团队的逻辑
+		User user = (User) session.getAttribute("loggedUser");
+		boolean hasParticipatingTeam = false;
+
+		if (user != null && user.getId().startsWith("S")) {
+			// 只对学生用户进行检查
+			List<Team> teams = teamService.getParticipatingTeamsForUser(user.getId(), id);
+			hasParticipatingTeam = teams != null && !teams.isEmpty();
+		}
+
+		model.addAttribute("hasParticipatingTeam", hasParticipatingTeam);
 		return "competition/match";
 	}
 

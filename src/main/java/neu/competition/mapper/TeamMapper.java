@@ -13,11 +13,6 @@ import java.util.List;
 public interface TeamMapper extends BaseMapper<Team> {
 
 
-    @Select("SELECT t.*, (SELECT tm.uname FROM team_member tm WHERE tm.team_id = t.id AND tm.role = '队长' LIMIT 1) AS leaderName " +
-            "FROM team t " +
-            "WHERE t.id IN (SELECT team_id FROM team_member WHERE uid = #{userId} AND role = '队长') " +
-            "AND t.id NOT IN (SELECT team_id FROM participation_record WHERE match_id = #{matchId})")
-    List<Team> getEligibleTeamsForUser(@Param("userId") String userId, @Param("matchId") int matchId);
 
     @Select("SELECT * FROM team WHERE id NOT IN (SELECT team_id FROM participation_record WHERE match_id = #{matchId}) AND id IN (SELECT team_id FROM team_member WHERE uid = #{userId} AND role = '队长')")
     List<Team> findEligibleTeams(@Param("userId") String userId, @Param("matchId") int matchId);
@@ -35,4 +30,14 @@ public interface TeamMapper extends BaseMapper<Team> {
     int insertTeam(@Param("tname") String tname, @Param("logo") String logo);
     @Select("SELECT IFNULL(MAX(id), 0) FROM team")
     int getMaxTeamId();
+    @Select("SELECT t.*, (SELECT tm.uname FROM team_member tm WHERE tm.team_id = t.id AND tm.role = '队长' LIMIT 1) AS leaderName " +
+            "FROM team t " +
+            "WHERE t.id IN (SELECT team_id FROM team_member WHERE uid = #{userId}) " +
+            "AND t.id IN (SELECT team_id FROM participation_record WHERE match_id = #{matchId})")
+    List<Team> getParticipatingTeamsForUser(@Param("userId") String userId, @Param("matchId") int matchId);
+    @Select("SELECT t.*, (SELECT tm.uname FROM team_member tm WHERE tm.team_id = t.id AND tm.role = '队长' LIMIT 1) AS leaderName " +
+            "FROM team t " +
+            "WHERE t.id IN (SELECT team_id FROM team_member WHERE uid = #{userId}) " +
+            "AND t.id NOT IN (SELECT team_id FROM participation_record WHERE match_id = #{matchId})")
+    List<Team> getEligibleTeamsForUser(@Param("userId") String userId, @Param("matchId") int matchId);
 }

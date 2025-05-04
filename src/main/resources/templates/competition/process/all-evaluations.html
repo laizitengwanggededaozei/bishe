@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/competition-common :: common_head(${myLinks}, ${myScripts})">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>作品评审</title>
+</head>
+<body>
+<div th:replace="common/competition-common::mall-header"></div>
+<div th:replace="common/competition-common::competition-sidebar"></div>
+
+<div class="com-body">
+    <div class="com-title">作品评审</div>
+
+    <div class="card">
+        <div class="card-header">
+            <h4>待评审的比赛</h4>
+        </div>
+        <div class="card-body">
+            <div th:if="${matches.size() == 0}">
+                <p>暂无待评审的比赛</p>
+            </div>
+            <div th:if="${matches.size() > 0}">
+                <div class="row">
+                    <div class="col-md-4" th:each="match : ${matches}">
+                        <div class="card mb-4">
+                            <img class="card-img-top" th:if="${match.imageUrl != null and !match.imageUrl.isEmpty()}" th:src="${match.imageUrl}" alt="比赛图片">
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${match.matchName}">比赛名称</h5>
+                                <p class="card-text" th:text="${match.competitionStandards}">比赛标准</p>
+                                <a th:href="@{/competition-process/evaluations(matchId=${match.matchId})}" class="btn btn-primary">查看待评审作品</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="common/competition-common::mall-footer"></div>
+</body>
+</html>

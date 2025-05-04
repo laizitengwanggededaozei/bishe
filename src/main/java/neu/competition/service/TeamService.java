@@ -24,6 +24,7 @@ public interface TeamService {
     List<TeamMember> getTeamMembersByTeamId(int teamId);
 
     boolean isTeamRegisteredForCompetition(int teamId, int matchId);
+    List<Team> getParticipatingTeamsForUser(String userId, int matchId);
 
 
     @Transactional
@@ -43,4 +44,5 @@ public interface TeamService {
 
     @Transactional
     void changeTeamLeader(int teamId, String newLeaderId);
+    boolean hasParticipatingTeam(String userId, int matchId);
 }

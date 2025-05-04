@@ -3,40 +3,55 @@
 <head th:replace="common/competition-common :: common_head(${myLinks}, ${myScripts})">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>比赛进行</title>
+    <title>参与比赛</title>
 </head>
 <body>
 <div th:replace="common/competition-common::mall-header"></div>
 <div th:replace="common/competition-common::competition-sidebar"></div>
 
 <div class="com-body">
-    <div class="com-title">比赛进行 - <span th:text="${matchDTO.matchName}">比赛名称</span></div>
+    <div class="com-title">参与比赛 - <span th:text="${matchDTO.matchName}">比赛名称</span></div>
 
     <div class="alert alert-info">
         <strong>比赛时间：</strong>
         <span th:text="${matchDTO.matchStartTime} + ' 至 ' + ${matchDTO.matchEndTime}"></span>
+        <div class="team-info mt-2 fw-bold"></div>
     </div>
 
-    <div class="card">
-        <div class="card-header">
-            <h4>选择参赛团队</h4>
-        </div>
-        <div class="card-body">
-            <div th:if="${teams.size() == 0}">
-                <p>您目前没有符合条件的团队，请先 <a href="/team/create">创建团队</a> 并报名参赛。</p>
-            </div>
-            <div th:if="${teams.size() > 0}">
-                <form id="teamSelectForm">
-                    <select class="form-control" id="teamSelect">
-                        <option value="">-- 请选择团队 --</option>
-                        <option th:each="team : ${teams}" th:value="${team.id}" th:text="${team.tname}">团队名称</option>
-                    </select>
-                </form>
+    <!-- 团队选择弹窗 -->
+    <div class="modal fade" id="teamSelectModal" tabindex="-1" aria-labelledby="teamSelectModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="teamSelectModalLabel">选择参赛团队</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div th:if="${teams.size() == 0}">
+                        <p>您目前没有符合条件的团队，请先 <a href="/team/create">创建团队</a> 并报名参赛。</p>
+                    </div>
+                    <div th:if="${teams.size() > 0}">
+                        <form id="teamSelectForm">
+                            <div class="form-group">
+                                <label for="teamSelect">可用团队：</label>
+                                <select class="form-control" id="teamSelect">
+                                    <option value="">-- 请选择团队 --</option>
+                                    <option th:each="team : ${teams}" th:value="${team.id}" th:text="${team.tname}">团队名称</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="confirmTeamBtn" disabled>确认选择</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="card mt-4">
+    <!-- 题目列表（初始隐藏） -->
+    <div class="card mt-4 problem-list-container d-none">
         <div class="card-header">
             <h4>题目列表</h4>
         </div>
@@ -58,8 +73,7 @@
         </div>
     </div>
 
-    <!-- 修改文件：src/main/resources/templates/competition/process/competition-process.html -->
-    <!-- 将操作部分修改为: -->
+    <!-- 操作按钮区域 -->
     <div class="card mt-4">
         <div class="card-header">
             <h4>操作</h4>
@@ -68,7 +82,8 @@
             <div class="row" th:with="userRole=${session.loggedUser.id.substring(0, 1)}">
                 <!-- 学生操作 -->
                 <div class="col-md-4" th:if="${userRole == 'S'}">
-                    <button class="btn btn-primary btn-block view-submissions-btn" disabled>查看提交记录</button>
+                    <button class="btn btn-primary btn-block" data-bs-toggle="modal" data-bs-target="#teamSelectModal">选择团队</button>
+                    <button class="btn btn-info btn-block view-submissions-btn mt-2" disabled>查看提交记录</button>
                 </div>
                 <div class="col-md-4">
                     <button class="btn btn-success btn-block view-results-btn" onclick="location.href='/competition-process/results?matchId=' + [[${matchDTO.matchId}]]">查看比赛结果</button>
@@ -95,19 +110,67 @@
 
 <script>
     $(document).ready(function() {
+        // 自动显示团队选择弹窗（如果有多个团队且没有选择过）
+        const teamCount = [[${teams.size()}]];
+        if (teamCount > 1 && !sessionStorage.getItem('selectedTeamId')) {
+            $('#teamSelectModal').modal('show');
+        } else if (teamCount === 1) {
+            // 如果只有一个团队，自动选择
+            const teamId = [[${teams[0].id}]];
+            const teamName = [[${teams[0].tname}]];
+            sessionStorage.setItem('selectedTeamId', teamId);
+            sessionStorage.setItem('selectedTeamName', teamName);
+            $('.team-info').text('当前参赛团队: ' + teamName);
+            $('.problem-list-container').removeClass('d-none');
+            $('.view-submissions-btn').prop('disabled', false);
+        }
         // 团队选择变更事件
         $('#teamSelect').change(function() {
             const teamId = $(this).val();
             if (teamId) {
+                $('#confirmTeamBtn').prop('disabled', false);
+            } else {
+                $('#confirmTeamBtn').prop('disabled', true);
+            }
+        });
+
+        // 确认团队按钮点击事件
+        $('#confirmTeamBtn').click(function() {
+            const teamId = $('#teamSelect').val();
+            const teamName = $('#teamSelect option:selected').text();
+
+            if (teamId) {
+                // 保存选择的团队ID到会话
+                sessionStorage.setItem('selectedTeamId', teamId);
+                sessionStorage.setItem('selectedTeamName', teamName);
+                $('#teamSelectModal').modal('hide');
+
+                // 更新页面显示
+                $('.team-info').text('当前参赛团队: ' + teamName);
+                $('.problem-list-container').removeClass('d-none');
                 $('.view-submissions-btn').prop('disabled', false);
                 $('.view-submissions-btn').click(function() {
                     location.href = '/competition-process/submissions?teamId=' + teamId + '&matchId=' + [[${matchDTO.matchId}]];
                 });
-            } else {
-                $('.view-submissions-btn').prop('disabled', true);
             }
         });
+
+        // 从会话中恢复选择的团队
+        const savedTeamId = sessionStorage.getItem('selectedTeamId');
+        const savedTeamName = sessionStorage.getItem('selectedTeamName');
+
+        if (savedTeamId && savedTeamName) {
+            $('.team-info').text('当前参赛团队: ' + savedTeamName);
+            $('.problem-list-container').removeClass('d-none');
+            $('.view-submissions-btn').prop('disabled', false);
+            $('.view-submissions-btn').click(function() {
+                location.href = '/competition-process/submissions?teamId=' + savedTeamId + '&matchId=' + [[${matchDTO.matchId}]];
+            });
+        }
     });
+
 </script>
+
+
 </body>
 </html>

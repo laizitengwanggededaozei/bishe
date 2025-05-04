@@ -26,4 +26,31 @@ body.student-theme {
 
 .student-dashboard-card {
     border-left: 4px solid var(--primary-color);
+}.student-theme {
+     --primary-color: #2ecc71;
+     --secondary-color: #27ae60;
+     --accent-color: #f1c40f;
+     --text-color: #2c3e50;
+     --background-color: #f9f9f9;
+ }
+
+body.student-theme {
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+.student-sidebar {
+    background-color: var(--primary-color);
+}
+
+.student-sidebar .nav-link {
+    color: white;
+}
+
+.student-sidebar .nav-link:hover {
+    background-color: var(--secondary-color);
+}
+
+.student-dashboard-card {
+    border-left: 4px solid var(--primary-color);
 }

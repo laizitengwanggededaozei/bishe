@@ -76,4 +76,8 @@ public class CompetitionProcessServiceImpl implements CompetitionProcessService 
     public ResultDTO getTeamResult(Integer teamId, Integer matchId) {
         return resultMapper.selectResultByTeamAndMatch(teamId, matchId);
     }
+    @Override
+    public List<SubmissionDTO> getPendingSubmissions(Integer matchId) {
+        return submissionMapper.selectPendingSubmissionsByMatchId(matchId);
+    }
 }

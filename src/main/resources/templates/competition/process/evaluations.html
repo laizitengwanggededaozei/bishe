@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/competition-common :: common_head(${myLinks}, ${myScripts})">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>作品评审</title>
+</head>
+<body>
+<div th:replace="common/competition-common::mall-header"></div>
+<div th:replace="common/competition-common::competition-sidebar"></div>
+
+<div class="com-body">
+    <div class="com-title">作品评审 - <span th:text="${matchDTO.matchName}">比赛名称</span></div>
+
+    <div class="card">
+        <div class="card-header">
+            <h4>待评审作品</h4>
+        </div>
+        <div class="card-body">
+            <div th:if="${submissions.size() == 0}">
+                <p>暂无待评审作品</p>
+            </div>
+            <div th:if="${submissions.size() > 0}">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>团队</th>
+                            <th>题目</th>
+                            <th>提交时间</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="submission : ${submissions}">
+                            <td th:text="${submission.teamName}">团队名称</td>
+                            <td th:text="${submission.problemTitle}">题目标题</td>
+                            <td th:text="${#temporals.format(submission.submitTime, 'yyyy-MM-dd HH:mm:ss')}">提交时间</td>
+                            <td>
+                                <span class="badge badge-warning" th:if="${submission.status == 'PENDING'}">待评判</span>
+                                <span class="badge badge-info" th:if="${submission.status == 'SUBMITTED'}">已提交</span>
+                            </td>
+                            <td>
+                                <a th:href="'/competition-process/evaluate/' + ${submission.submissionId}" class="btn btn-sm btn-primary">评分</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <button class="btn btn-secondary" onclick="history.back()">返回</button>
+    </div>
+</div>
+
+<div th:replace="common/competition-common::mall-footer"></div>
+</body>
+</html>

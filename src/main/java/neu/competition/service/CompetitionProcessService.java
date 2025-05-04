@@ -31,4 +31,6 @@ public interface CompetitionProcessService {
     
     // 获取团队比赛结果
     ResultDTO getTeamResult(Integer teamId, Integer matchId);
+    // 添加方法声明
+    List<SubmissionDTO> getPendingSubmissions(Integer matchId);
 }

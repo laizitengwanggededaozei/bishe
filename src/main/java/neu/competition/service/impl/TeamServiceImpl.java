@@ -274,4 +274,18 @@ public class TeamServiceImpl implements TeamService {
             throw new IllegalArgumentException("新队长必须是该团队的成员");
         }
     }
+    @Override
+    public List<Team> getParticipatingTeamsForUser(String userId, int matchId) {
+        List<Team> teams = teamMapper.getParticipatingTeamsForUser(userId, matchId);
+        for (Team team : teams) {
+            List<TeamMember> members = teamMemberMapper.getTeamMembersByTeamId(team.getId());
+            team.setMembers(members);
+        }
+        return teams;
+    }
+    @Override
+    public boolean hasParticipatingTeam(String userId, int matchId) {
+        List<Team> teams = teamMapper.getParticipatingTeamsForUser(userId, matchId);
+        return teams != null && !teams.isEmpty();
+    }
 }

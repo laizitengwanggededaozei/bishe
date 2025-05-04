@@ -344,4 +344,18 @@ public class CompetitionServiceImpl implements CompetitionService {
 
 		return dtoList;
 	}
+	@Override
+	public List<MatchesDTO> getMatchesForEvaluation() {
+		QueryWrapper<Matches> queryWrapper = new QueryWrapper<>();
+		queryWrapper.eq("publish", 1);
+		List<Matches> matches = matchMapper.selectList(queryWrapper);
+
+		List<MatchesDTO> dtoList = new ArrayList<>();
+		for (Matches match : matches) {
+			MatchesDTO dto = setMatchDTO(match);
+			dtoList.add(dto);
+		}
+
+		return dtoList;
+	}
 }

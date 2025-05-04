@@ -49,9 +49,9 @@
                         <span class="name" th:text="${competitionDTO.comOther}">XXXXXX</span>
                     </div>
                 </div>
-                <form class="card-button-area" th:action="@{/editCompetition}" method="post">
+                <form class="card-button-area" th:if="${session.loggedUser != null && session.loggedUser.id.startsWith('B')}">
                     <input type="hidden" name="comId" th:value="${competitionDTO.comId}">
-                    <button class="card-button orange" type="submit">修改</button>
+                    <a th:href="@{/editCompetition(comId=${competitionDTO.comId})}" class="card-button orange">修改</a>
                 </form>
             </div>
         </div>
