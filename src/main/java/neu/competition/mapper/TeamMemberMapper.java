@@ -44,4 +44,11 @@ public interface TeamMemberMapper extends BaseMapper<TeamMember> {
 
     @Update("UPDATE team_member SET role = #{role} WHERE uid = #{uid} AND team_id = #{teamId}")
     int updateById(@Param("uid") String uid, @Param("teamId") int teamId, @Param("role") String role);
+    // 在TeamMemberMapper接口中修改或添加
+    @Delete("DELETE FROM team_member WHERE uid = #{uid} AND team_id = #{teamId}")
+    int deleteByCompositeKey(@Param("uid") String uid, @Param("teamId") int teamId);
+
+    @Update("UPDATE team_member SET role = #{role}, uname = #{uname} WHERE uid = #{uid} AND team_id = #{teamId}")
+    int updateByCompositeKey(@Param("uid") String uid, @Param("teamId") int teamId,
+                             @Param("role") String role, @Param("uname") String uname);
 }

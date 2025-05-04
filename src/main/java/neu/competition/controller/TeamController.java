@@ -197,16 +197,28 @@ public class TeamController {
         if (user == null) {
             return "redirect:/login";
         }
-        System.out.println("Received teamId: " + teamId);
-        System.out.println("Received matchId: " + matchId);
-        teamService.registerTeamForCompetition(teamId, matchId);
-        model.addAttribute("successMessage", "报名成功！");
+        try {
+            // 注册团队
+            teamService.registerTeamForCompetition(teamId, matchId);
 
-        // 清除会话中的teamId和matchId
-        session.removeAttribute("teamId");
-        session.removeAttribute("matchId");
+            System.out.println("Received teamId: " + teamId);
+            System.out.println("Received matchId: " + matchId);
+            teamService.registerTeamForCompetition(teamId, matchId);
+            model.addAttribute("successMessage", "报名成功！");
 
-        return "redirect:/registrationSuccess";
+            // 清除会话中的teamId和matchId
+            session.removeAttribute("teamId");
+//            session.removeAttribute("matchId");
+
+            return "redirect:/registrationSuccess";
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            return "redirect:/team/register-competition?matchId=" + matchId + "&error=true";
+        }
+
+
+
+
     }
 
 

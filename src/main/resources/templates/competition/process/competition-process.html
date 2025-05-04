@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="common/competition-common :: common_head(${myLinks}, ${myScripts})">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>参与比赛</title>
@@ -167,6 +169,12 @@
 
     // 选择团队函数，发送到后端
     function selectTeam(teamId) {
+        console.log("选择团队: " + teamId); // 添加调试信息
+
+        // 添加CSRF令牌支持（如果使用Spring Security）
+        var token = $("meta[name='_csrf']").attr("content");
+        var header = $("meta[name='_csrf_header']").attr("content");
+
         $.ajax({
             url: '/competition-process/select-team',
             type: 'POST',
@@ -174,13 +182,19 @@
                 teamId: teamId,
                 matchId: [[${matchDTO.matchId}]]
             },
+            beforeSend: function(xhr) {
+                if (token && header) {
+                    xhr.setRequestHeader(header, token);
+                }
+            },
             success: function(response) {
+                console.log("请求成功: ", response); // 添加调试信息
                 if (response.success) {
                     // 更新UI
                     $('.team-info').text('当前参赛团队: ' + response.teamName);
                     $('.problem-list-container').removeClass('d-none');
                     $('.view-submissions-btn').prop('disabled', false);
-                    $('.view-submissions-btn').click(function() {
+                    $('.view-submissions-btn').off('click').on('click', function() { // 修复可能的事件重复绑定
                         location.href = '/competition-process/submissions?teamId=' + teamId + '&matchId=' + [[${matchDTO.matchId}]];
                     });
 
@@ -190,11 +204,26 @@
                     alert(response.message || '选择团队失败');
                 }
             },
-            error: function() {
+            error: function(xhr, status, error) {
+                console.error("请求错误: ", error, xhr.responseText); // 增强错误信息
                 alert('服务器错误，请稍后重试');
             }
         });
     }
+
+    // 修改确认按钮事件绑定，使用直接绑定而非document ready中
+    $(document).ready(function() {
+        // 现有代码...
+
+        // 重新绑定确认按钮事件
+        $('#confirmTeamBtn').off('click').on('click', function() {
+            const teamId = $('#teamSelect').val();
+            console.log("确认按钮点击，选择团队ID: " + teamId);
+            if (teamId) {
+                selectTeam(teamId);
+            }
+        });
+    });
 </script>
 
 </body>

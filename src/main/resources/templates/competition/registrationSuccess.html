@@ -19,12 +19,22 @@
 </head>
 <body>
 <div class="modal-content">
-    <p>报名成功！3秒后将跳转到我的团队页面...</p>
+    <p>报名成功！3秒后将跳转到参与比赛页面...</p>
 </div>
-<script>
-    setTimeout(function() {
-        window.location.href = "/team/manage";
-    }, 3000); // 3秒后跳转
+<script th:inline="javascript">
+    // 获取会话中保存的matchId
+    var matchId = [[${session.matchId}]];
+    if (!matchId) {
+        // 如果没有matchId，默认跳转到团队管理页面
+        setTimeout(function() {
+            window.location.href = "/team/manage";
+        }, 3000);
+    } else {
+        // 有matchId，跳转到参与比赛页面
+        setTimeout(function() {
+            window.location.href = "/competition-process/match/" + matchId;
+        }, 3000);
+    }
 </script>
 </body>
 </html>

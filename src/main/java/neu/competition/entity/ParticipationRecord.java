@@ -17,11 +17,8 @@ import java.time.LocalDateTime;
 @Accessors(chain = true)
 @TableName("participation_record")
 public class ParticipationRecord implements Serializable {
-    @TableId(type = IdType.INPUT)
+    // 移除@TableId注解
     private int teamId;
-
-    @TableId(type = IdType.INPUT)
     private int matchId;
-
     private LocalDateTime registrationTime;
 }

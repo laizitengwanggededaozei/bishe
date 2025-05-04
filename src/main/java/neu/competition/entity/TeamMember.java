@@ -19,13 +19,9 @@ import java.io.Serializable;
 @Accessors(chain = true)
 @TableName("team_member")
 public class TeamMember implements Serializable {
-    // 定义复合主键
-    @TableId(type = IdType.INPUT)
+    // 不使用@TableId，而是利用MP的声明式处理方式
     private String uid;
-
-    @TableId(type = IdType.INPUT)
     private int teamId;
-
     private String uname;
     private String role;
     public void setRole(String role) {
