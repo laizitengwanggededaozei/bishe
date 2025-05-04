@@ -19,7 +19,9 @@ import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/competition-process")
@@ -34,28 +36,7 @@ public class CompetitionProcessController {
     @Autowired
     private TeamService teamService;
     
-    // 比赛进行页面
-    @GetMapping("/match/{matchId}")
-    public String competitionProcess(@PathVariable("matchId") Integer matchId, Model model, HttpSession session) {
-        // 检查用户是否登录
-        User user = (User) session.getAttribute("loggedUser");
-        if (user == null) {
-            return "redirect:/login";
-        }
 
-        // 获取比赛信息
-        model.addAttribute("matchDTO", competitionService.selectMatch(matchId));
-
-        // 获取用户已报名的参赛团队
-        List<Team> teams = teamService.getParticipatingTeamsForUser(user.getId(), matchId);
-        model.addAttribute("teams", teams);
-
-        // 获取比赛题目
-        List<ProblemDTO> problems = competitionProcessService.getProblems(matchId);
-        model.addAttribute("problems", problems);
-
-        return "competition/process/competition-process";
-    }
     // 题目详情页面
     @GetMapping("/problem/{problemId}")
     public String problemDetail(@PathVariable("problemId") Integer problemId, Model model, HttpSession session) {
@@ -332,5 +313,76 @@ public class CompetitionProcessController {
 
         return "competition/process/all-evaluations";
     }
+    // 在CompetitionProcessController中添加
+    @PostMapping("/select-team")
+    @ResponseBody
+    public Map<String, Object> selectTeam(@RequestParam("teamId") Integer teamId,
+                                          @RequestParam("matchId") Integer matchId,
+                                          HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
 
+        User user = (User) session.getAttribute("loggedUser");
+        if (user == null) {
+            response.put("success", false);
+            response.put("message", "用户未登录");
+            return response;
+        }
+
+        // 验证团队是否存在且属于当前用户
+        Team team = teamService.getTeamById(teamId);
+        if (team == null) {
+            response.put("success", false);
+            response.put("message", "团队不存在");
+            return response;
+        }
+
+        // 验证团队是否已报名该比赛
+        boolean isRegistered = teamService.isTeamRegisteredForCompetition(teamId, matchId);
+        if (!isRegistered) {
+            response.put("success", false);
+            response.put("message", "该团队未报名此比赛");
+            return response;
+        }
+
+        // 存储选择的团队到会话
+        Map<String, Integer> userMatchTeams = (Map<String, Integer>) session.getAttribute("userMatchTeams");
+        if (userMatchTeams == null) {
+            userMatchTeams = new HashMap<>();
+        }
+        String key = "match_" + matchId;
+        userMatchTeams.put(key, teamId);
+        session.setAttribute("userMatchTeams", userMatchTeams);
+
+        // 返回成功信息和团队名称
+        response.put("success", true);
+        response.put("teamName", team.getTname());
+        return response;
+    }
+
+    // 修改competitionProcess方法，支持恢复之前选择的团队
+    @GetMapping("/match/{matchId}")
+    public String competitionProcess(@PathVariable("matchId") Integer matchId, Model model, HttpSession session) {
+        // 检查用户是否登录...
+
+        User user = (User) session.getAttribute("loggedUser");
+        if (user == null) {
+            return "redirect:/login";
+        }
+        // 获取比赛信息并检查是否存在
+        MatchesDTO matchDTO = competitionService.selectMatch(matchId);
+        if (matchDTO == null) {
+            // 比赛不存在，返回错误页面
+            return "redirect:/error?message=比赛不存在";
+        }
+        model.addAttribute("matchDTO", matchDTO);
+        // 获取用户已报名的参赛团队
+        List<Team> teams = teamService.getParticipatingTeamsForUser(user.getId(), matchId);
+        model.addAttribute("teams", teams);
+
+        // 获取比赛题目
+        List<ProblemDTO> problems = competitionProcessService.getProblems(matchId);
+        model.addAttribute("problems", problems);
+
+        return "competition/process/competition-process";
+    }
 }

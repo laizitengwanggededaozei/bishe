@@ -45,4 +45,5 @@ public interface TeamService {
     @Transactional
     void changeTeamLeader(int teamId, String newLeaderId);
     boolean hasParticipatingTeam(String userId, int matchId);
+    List<Team> getTeamsGuidedByTeacher(String teacherId);
 }

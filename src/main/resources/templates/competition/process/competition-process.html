@@ -108,69 +108,94 @@
 
 <div th:replace="common/competition-common::mall-footer"></div>
 
+<!-- 修改团队选择相关JavaScript部分 -->
 <script>
     $(document).ready(function() {
-        // 自动显示团队选择弹窗（如果有多个团队且没有选择过）
-        const teamCount = [[${teams.size()}]];
-        if (teamCount > 1 && !sessionStorage.getItem('selectedTeamId')) {
-            $('#teamSelectModal').modal('show');
-        } else if (teamCount === 1) {
-            // 如果只有一个团队，自动选择
-            const teamId = [[${teams[0].id}]];
-            const teamName = [[${teams[0].tname}]];
-            sessionStorage.setItem('selectedTeamId', teamId);
-            sessionStorage.setItem('selectedTeamName', teamName);
-            $('.team-info').text('当前参赛团队: ' + teamName);
-            $('.problem-list-container').removeClass('d-none');
-            $('.view-submissions-btn').prop('disabled', false);
-        }
-        // 团队选择变更事件
-        $('#teamSelect').change(function() {
-            const teamId = $(this).val();
-            if (teamId) {
-                $('#confirmTeamBtn').prop('disabled', false);
-            } else {
-                $('#confirmTeamBtn').prop('disabled', true);
+        // 获取服务器端的选择的团队信息
+        const userMatchTeams = [[${session.userMatchTeams}]];
+        const matchId = [[${matchDTO.matchId}]];
+        const key = "match_" + matchId;
+
+        if (userMatchTeams && userMatchTeams[key]) {
+            // 已有团队选择，自动加载
+            const teamId = userMatchTeams[key];
+            const selectedTeam = findTeamById(teamId);
+            if (selectedTeam) {
+                displaySelectedTeam(selectedTeam);
             }
-        });
+        } else {
+            // 无选择，显示团队选择对话框
+            const teams = [[${teams}]];
+            if (teams && teams.length === 1) {
+                // 只有一个团队，自动选择
+                selectTeam(teams[0].id);
+            } else if (teams && teams.length > 1) {
+                $('#teamSelectModal').modal('show');
+            }
+        }
 
         // 确认团队按钮点击事件
         $('#confirmTeamBtn').click(function() {
             const teamId = $('#teamSelect').val();
-            const teamName = $('#teamSelect option:selected').text();
-
             if (teamId) {
-                // 保存选择的团队ID到会话
-                sessionStorage.setItem('selectedTeamId', teamId);
-                sessionStorage.setItem('selectedTeamName', teamName);
-                $('#teamSelectModal').modal('hide');
-
-                // 更新页面显示
-                $('.team-info').text('当前参赛团队: ' + teamName);
-                $('.problem-list-container').removeClass('d-none');
-                $('.view-submissions-btn').prop('disabled', false);
-                $('.view-submissions-btn').click(function() {
-                    location.href = '/competition-process/submissions?teamId=' + teamId + '&matchId=' + [[${matchDTO.matchId}]];
-                });
+                selectTeam(teamId);
             }
         });
 
-        // 从会话中恢复选择的团队
-        const savedTeamId = sessionStorage.getItem('selectedTeamId');
-        const savedTeamName = sessionStorage.getItem('selectedTeamName');
-
-        if (savedTeamId && savedTeamName) {
-            $('.team-info').text('当前参赛团队: ' + savedTeamName);
-            $('.problem-list-container').removeClass('d-none');
-            $('.view-submissions-btn').prop('disabled', false);
-            $('.view-submissions-btn').click(function() {
-                location.href = '/competition-process/submissions?teamId=' + savedTeamId + '&matchId=' + [[${matchDTO.matchId}]];
-            });
-        }
+        // 团队选择变更事件
+        $('#teamSelect').change(function() {
+            const teamId = $(this).val();
+            $('#confirmTeamBtn').prop('disabled', !teamId);
+        });
     });
 
-</script>
+    // 查找团队
+    function findTeamById(teamId) {
+        const teams = [[${teams}]];
+        return teams.find(team => team.id == teamId);
+    }
 
+    // 显示已选择团队
+    function displaySelectedTeam(team) {
+        $('.team-info').text('当前参赛团队: ' + team.tname);
+        $('.problem-list-container').removeClass('d-none');
+        $('.view-submissions-btn').prop('disabled', false);
+        $('.view-submissions-btn').click(function() {
+            location.href = '/competition-process/submissions?teamId=' + team.id + '&matchId=' + [[${matchDTO.matchId}]];
+        });
+    }
+
+    // 选择团队函数，发送到后端
+    function selectTeam(teamId) {
+        $.ajax({
+            url: '/competition-process/select-team',
+            type: 'POST',
+            data: {
+                teamId: teamId,
+                matchId: [[${matchDTO.matchId}]]
+            },
+            success: function(response) {
+                if (response.success) {
+                    // 更新UI
+                    $('.team-info').text('当前参赛团队: ' + response.teamName);
+                    $('.problem-list-container').removeClass('d-none');
+                    $('.view-submissions-btn').prop('disabled', false);
+                    $('.view-submissions-btn').click(function() {
+                        location.href = '/competition-process/submissions?teamId=' + teamId + '&matchId=' + [[${matchDTO.matchId}]];
+                    });
+
+                    // 关闭模态框
+                    $('#teamSelectModal').modal('hide');
+                } else {
+                    alert(response.message || '选择团队失败');
+                }
+            },
+            error: function() {
+                alert('服务器错误，请稍后重试');
+            }
+        });
+    }
+</script>
 
 </body>
 </html>

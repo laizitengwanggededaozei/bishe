@@ -214,4 +214,16 @@ public class TeamController {
     public String showRegistrationSuccessPage() {
         return "competition/registrationSuccess";
     }
+    @GetMapping("/my-teams")
+    public String myTeams(Model model, HttpSession session) {
+        User user = (User) session.getAttribute("loggedUser");
+        if (user == null) {
+            return "redirect:/login";
+        }
+        String userId = user.getId();
+        // 使用已有的getMyTeamsByUserId方法
+        List<Team> myTeams = teamService.getMyTeamsByUserId(userId);
+        model.addAttribute("myTeams", myTeams);
+        return "competition/teamManagement"; // 重用已有页面
+    }
 }

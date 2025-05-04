@@ -1,5 +1,7 @@
 package neu.competition.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.Getter;
@@ -17,15 +19,15 @@ import java.io.Serializable;
 @Accessors(chain = true)
 @TableName("team_member")
 public class TeamMember implements Serializable {
-    // Getters and Setters
-
+    // 定义复合主键
+    @TableId(type = IdType.INPUT)
     private String uid;
 
+    @TableId(type = IdType.INPUT)
     private int teamId;
 
     private String uname;
     private String role;
-
     public void setRole(String role) {
         this.role = role;
     }

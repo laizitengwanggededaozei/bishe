@@ -288,4 +288,15 @@ public class TeamServiceImpl implements TeamService {
         List<Team> teams = teamMapper.getParticipatingTeamsForUser(userId, matchId);
         return teams != null && !teams.isEmpty();
     }
+    // 在TeamServiceImpl实现中添加
+    @Override
+    public List<Team> getTeamsGuidedByTeacher(String teacherId) {
+        // 查找教师作为指导老师的团队
+        List<Team> teams = teamMapper.getTeamsGuidedByTeacher(teacherId);
+        for (Team team : teams) {
+            List<TeamMember> members = teamMemberMapper.getTeamMembersByTeamId(team.getId());
+            team.setMembers(members);
+        }
+        return teams;
+    }
 }

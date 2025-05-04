@@ -40,4 +40,9 @@ public interface TeamMapper extends BaseMapper<Team> {
             "WHERE t.id IN (SELECT team_id FROM team_member WHERE uid = #{userId}) " +
             "AND t.id NOT IN (SELECT team_id FROM participation_record WHERE match_id = #{matchId})")
     List<Team> getEligibleTeamsForUser(@Param("userId") String userId, @Param("matchId") int matchId);
+    // 在TeamMapper接口中添加
+    @Select("SELECT t.*, (SELECT tm.uname FROM team_member tm WHERE tm.team_id = t.id AND tm.role = '队长' LIMIT 1) AS leaderName " +
+            "FROM team t " +
+            "WHERE t.id IN (SELECT team_id FROM team_member WHERE uid = #{teacherId} AND role = '教师')")
+    List<Team> getTeamsGuidedByTeacher(@Param("teacherId") String teacherId);
 }

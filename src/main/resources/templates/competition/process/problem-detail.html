@@ -41,7 +41,12 @@
                         <label for="teamId">选择团队</label>
                         <select class="form-control" id="teamId" name="teamId" required>
                             <option value="">-- 请选择团队 --</option>
-                            <option th:each="team : ${teams}" th:value="${team.id}" th:text="${team.tname}">团队名称</option>
+                            <option th:each="team : ${teams}" th:value="${team.id}"
+                                    th:text="${team.tname}"
+                                    th:selected="${session.userMatchTeams != null &&
+                             session.userMatchTeams[problem.matchId] == team.id}">
+                                团队名称
+                            </option>
                         </select>
                     </div>
 

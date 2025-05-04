@@ -17,6 +17,8 @@ public class ProblemDTO implements Serializable {
     private String type;                // 类型
     private LocalDateTime createTime;   // 创建时间
     private String matchName;           // 比赛名称
+
+
     
     // Constructors
     public ProblemDTO() {

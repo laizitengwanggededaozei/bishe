@@ -1,0 +1,33 @@
+<!-- 新建文件: src/main/resources/templates/competition/teacher/guidedTeams.html -->
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/competition-common :: common_head(${myLinks}, ${myScripts})">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我指导的团队</title>
+</head>
+<body>
+<div th:replace="common/competition-common::mall-header"></div>
+<div th:replace="common/competition-common::competition-sidebar"></div>
+<!-- 主内容区 -->
+<div class="com-body">
+    <div class="com-title">我指导的团队</div>
+    <div class="com-cardList">
+        <div th:if="${guidedTeams.size() == 0}" class="alert alert-info">
+            <p>您目前没有指导任何团队。</p>
+        </div>
+        <div class="card" th:each="team : ${guidedTeams}">
+            <a class="card-link" th:href="'/team/detail?id=' + ${team.id}">
+                <div class="card-over">
+                    <img class="card-image" th:if="${team.logo != null and !team.logo.isEmpty()}" th:src="${team.logo}" alt="Team Logo" />
+                    <img class="card-image" th:unless="${team.logo != null and !team.logo.isEmpty()}" th:src="@{/image/NoImg.png}" alt="Default Team Logo" />
+                    <div class="card-name" th:text="${team.tname}">团队名称</div>
+                    <div class="card-main">队长: <span th:text="${team.leaderName}">队长姓名</span></div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+<div th:replace="common/competition-common::mall-footer"></div>
+</body>
+</html>
