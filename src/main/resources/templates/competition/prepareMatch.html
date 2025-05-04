@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head th:replace="common/competition-common :: common_head(${myLinks}, ${myScripts})">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的赛事页面</title>
+</head>
+<body>
+<div th:replace="common/competition-common::mall-header"></div>
+<div th:replace="common/competition-common::competition-sidebar"></div>
+<!-- 主内容区 -->
+<div class="com-body">
+    <div class="com-title">筹备比赛</div>
+    <div class="com-cardList">
+        <form class="card  card-form" action="/prepare" th:action="@{/prepare}" method="post" th:object="${matchesDTO}" enctype="multipart/form-data">
+            <div class="com-title">填写表单</div>
+            <div class="card-form-list">
+                <div class="card-form-column">
+                    <div class="card-form-inputBar">
+                        <label class="tag" for="comId">选择赛事：</label>
+                        <input class="input" id="comName" name="comName" type="text" th:value="${myCompetition.comName}" required readonly>
+                        <input id="comId" name="comId" type="hidden" th:field="*{comId}" th:value="${myCompetition.comId}">
+                    </div>
+                    <div class="card-form-inputBar">
+                        <label class="tag" for="matchLocal">比赛地点：</label>
+                        <input class="input" id="matchLocal" name="matchLocal" type="text" th:field="*{matchLocal}" th:value="${matchesDTO.matchLocal}" required>
+                    </div>
+                    <div class="card-form-inputBar">
+                        <label class="tag" for="sponsorContact">赞助联系人：</label>
+                        <input class="input" name="sponsorContact" id="sponsorContact" type="text" th:field="*{sponsorContact}" th:value="${matchesDTO.sponsorContact}" required>
+                    </div>
+                    <div class="card-form-inputBar">
+                        <label class="tag" for="matchLeader">比赛负责人：</label>
+                        <input class="input" id="matchLeader" name="matchLeader" type="text" th:field="*{matchLeader}" th:value="${matchesDTO.matchLeader}" required>
+                    </div>
+                    <div class="card-form-inputBar">
+                        <label class="tag" for="gradeInstructor">素质教师：</label>
+                        <input class="input" id="gradeInstructor" name="gradeInstructor" type="text" th:field="*{gradeInstructor}" th:value="${matchesDTO.gradeInstructor}" required>
+                    </div>
+                    <div class="card-form-inputBar">
+                        <label class="tag" for="joinDeadline">报名截止：</label>
+                        <input class="input" id="joinDeadline" name="joinDeadline" type="datetime-local" th:field="*{joinDeadline}" th:value="${matchesDTO.joinDeadline}" required>
+                    </div>
+                    <div class="card-form-inputBar">
+                        <label class="tag" for="matchStartTime">比赛开始：</label>
+                        <input class="input" id="matchStartTime" name="matchStartTime" type="datetime-local" th:field="*{matchStartTime}" th:value="${matchesDTO.matchStartTime}" required>
+                    </div>
+                    <div class="card-form-inputBar">
+                        <label class="tag" for="matchEndTime">比赛开始：</label>
+                        <input class="input" id="matchEndTime" name="matchEndTime" type="datetime-local" th:field="*{matchEndTime}" th:value="${matchesDTO.matchEndTime}" required>
+                    </div>
+                </div>
+                <div class="card-form-column">
+                    <div class="card-form-inputBar">
+                        <label class="tag" for="image">比赛海报：</label>
+                        <input class="input" id="image" name="image" type="file" accept=".jpg,.jpeg,.png">
+                    </div>
+                    <input type="hidden" id="imageUrl" th:value="${competitionDTO.imageUrl}">
+                    <div class="card" id="imageView" style="width: 500px; height: 280px;">
+
+                    </div>
+                </div>
+                <div style="width: 100%">
+                    <div class="card-form-textInput">
+                        <label class="tag" for="judgingInformation">裁判信息：</label>
+                        <textarea class="text" id="judgingInformation" name="judgingInformation" th:field="*{judgingInformation}" th:value="${matchesDTO.judgingInformation}"></textarea>
+                    </div>
+                    <div class="card-form-textInput">
+                        <label class="tag" for="competitionStandards">比赛标准：</label>
+                        <textarea class="text" id="competitionStandards" name="competitionStandards" th:field="*{competitionStandards}" th:value="${matchesDTO.competitionStandards}"></textarea>
+                    </div>
+                    <div class="card-form-textInput">
+                        <label class="tag" for="prizeDescription">奖品说明：</label>
+                        <textarea class="text" id="prizeDescription" name="prizeDescription" th:field="*{prizeDescription}" th:value="${matchesDTO.prizeDescription}"></textarea>
+                    </div>
+                </div>
+                <div class="card-button-area">
+                    <input type="hidden" name="matchId" th:field="*{matchId}" th:value="${matchesDTO.matchId}">
+                    <input type="hidden" name="comId" th:field="*{commend}" th:value="${competitionDTO.commend}">
+                    <button class="card-button blue" type="submit">提交</button>
+                    <button class="card-button white" onclick="location.href='/select'">返回</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div th:text="${message}" id="message" hidden="hidden"></div>
+<!-- 底部间隔横线和版权信息 -->
+<div th:replace="common/competition-common::mall-footer"></div>
+<!-- 错误信息 -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // DOM已加载完成，现在安全地获取元素
+        const messageElement = document.getElementById("message");
+        if (messageElement !== null && messageElement.textContent.trim() !== '') {
+            const message = messageElement.textContent || messageElement.innerText;
+            alert(message)
+        } else {
+            console.log('Message element not found.');
+        }
+    });
+</script>
+<script src="/js/competition.js"></script>
+</body>
+</html>

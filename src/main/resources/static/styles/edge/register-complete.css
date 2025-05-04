@@ -1,0 +1,71 @@
+.background-view {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: calc(100vw - 400px);
+    height: 100vh;
+    object-fit: cover;
+}
+
+.register-complete-panel {
+    position: fixed;
+    z-index: 10;
+    right: 0;
+    top: 0;
+    width: 400px;
+    border-radius: 10px;
+    bottom: 0;
+    backdrop-filter: blur(20px);
+    background: rgba(255, 255, 255, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    box-shadow: -10px 0 40px #ffffff;
+}
+
+.register-complete-panel .logo-container {
+    background: rgba(255, 255, 255, 1);
+    width: 100%;
+    height: 150px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.register-complete-panel .logo-img {
+    width: 300px;
+    margin-top: 40px;
+}
+
+.register-complete-panel .success-info-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 40px;
+}
+.register-complete-panel .success-info-container .success-icon{
+    font-size: 100px;
+    color: #0ca946;
+}
+.register-complete-panel .success-info-container .success-title{
+    color: #555555;
+    margin-top: 20px;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.register-complete-panel .more-actions-container {
+    margin-top: 30px;
+}
+
+.register-complete-panel .flex-box {
+    flex-grow: 1;
+}
+
+.register-complete-panel .copyright-container {
+    font-size: 13px;
+    padding: 20px;
+    color: #cccccc;
+}

@@ -1,0 +1,44 @@
+.title-line {
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid #cccccc;
+    padding-bottom: 10px;
+}
+
+.title-line .title {
+    flex-grow: 1;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.no-data {
+    font-size: 20px;
+    color: #888888;
+    padding: 180px 0;
+    text-align: center;
+}
+
+.shipping-address-list {
+
+}
+
+.shipping-address-list .shipping-address-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 10px 14px;
+    background-color: #f6f6f6;
+    margin-bottom: 8px;
+}
+
+.shipping-address-list .shipping-address-item .address-text {
+    flex-grow: 1;
+}
+
+.shipping-address-list .shipping-address-item .edit-btn {
+    margin-right: 6px;
+}
+
+.shipping-address-list .shipping-address-item .remove-btn {
+
+}

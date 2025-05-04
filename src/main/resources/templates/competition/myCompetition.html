@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head th:replace="common/competition-common :: common_head(${myLinks}, ${myScripts})">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>赛事信息系统</title>
+</head>
+<body>
+<div th:replace="common/competition-common::mall-header"></div>
+<div th:replace="common/competition-common::competition-sidebar"></div>
+<!-- 主内容区 -->
+<div class="com-body">
+    <div class="com-title">我的赛事</div>
+    <div class="com-cardList">
+        <div class="card"  th:each="competition : ${myCompetition}">
+            <a class="card-link" th:href="'/competition?id=' + ${competition.comId}">
+                <div class="card-over">
+                    <img class="card-image" th:if="${competition.imageUrl != null and !competition.imageUrl.isEmpty()}" th:src="${competition.imageUrl}" alt="Card Image" />
+                    <img class="card-image" th:unless="${competition.imageUrl != null and !competition.imageUrl.isEmpty()}" th:src="@{/image/NoImg.png}" alt="Default Card Image" />
+                    <div class="card-name" th:text="${competition.comName}">这里是个标题</div>
+                    <div class="card-main" th:text="${competition.comProfile}">这里是个内容</div>
+                </div>
+            </a>
+        </div>
+        <div class="card" th:if="${prefix.equals('B')}">
+            <a href="/createCompetition" class="card-link">
+                <div class="card-over">
+                    <div class="card-circle">
+                        <div class="card-cross"></div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+<div th:replace="common/competition-common::mall-footer"></div>
+</body>
+</html>

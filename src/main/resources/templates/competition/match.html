@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/competition-common :: common_head(${myLinks}, ${myScripts})">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>比赛详情页面</title>
+</head>
+<body>
+<div th:replace="common/competition-common::mall-header"></div>
+<div th:replace="common/competition-common::competition-sidebar"></div>
+<!-- 主内容区 -->
+<div class="com-body">
+  <div class="com-title">比赛详情</div>
+  <div class="com-cardList">
+    <div class="card  card-form">
+      <div class="com-title-container">
+        <div class="com-title" th:text="${matchDTO.matchName}">XXXXXX</div>
+        <img class="publish_sign" th:if="${matchDTO.publish == 0}" th:src="@{/image/Unpublished.png}" alt="Publish">
+        <img class="publish_sign" th:unless="${matchDTO.publish == 0}" th:src="@{/image/Published.png}" alt="Publish" />
+      </div>
+      <div class="card-form-list">
+        <div class="card  card-form">
+          <img class="card-page" th:if="${matchDTO.imageUrl != null and !matchDTO.imageUrl.isEmpty()}" th:src="${matchDTO.imageUrl}">
+          <img class="card-page" th:unless="${matchDTO.imageUrl != null and !matchDTO.imageUrl.isEmpty()}" th:src="@{/image/NoImg.png}" alt="Default Card Image" />
+        </div>
+        <div class="card-content">
+          <div class="card-form-inputBar">
+            <span class="tag">比赛地点：</span>
+            <span class="name" th:text="${matchDTO.matchLocal}">XXXXXX</span>
+          </div>
+          <div class="card-form-inputBar">
+            <span class="tag">赞助联系人：</span>
+            <span class="name" th:text="${matchDTO.sponsorContact}">XXXXXX</span>
+          </div>
+          <div class="card-form-inputBar">
+            <span class="tag">比赛负责人：</span>
+            <span class="name" th:text="${matchDTO.matchLeader}">XXXXXX</span>
+          </div>
+          <div class="card-form-inputBar">
+            <span class="tag">素质教师：</span>
+            <span class="name" th:text="${matchDTO.gradeInstructor}">XXXXXX</span>
+          </div>
+          <div class="card-form-inputBar">
+            <span class="tag">比赛开始：</span>
+            <span class="name" th:text="${matchDTO.matchStartTime}">XXXXXX</span>
+          </div>
+          <div class="card-form-inputBar">
+            <span class="tag">比赛结束：</span>
+            <span class="name" th:text="${matchDTO.matchEndTime}">XXXXXX</span>
+          </div>
+          <div class="card-form-inputBar">
+            <span class="tag">报名截止：</span>
+            <span class="name" th:text="${matchDTO.joinDeadline}">XXXXXX</span>
+          </div>
+          <div class="card-form-textInput">
+            <span class="tag">裁判信息：</span>
+            <span class="name" th:text="${matchDTO.judgingInformation}">XXXXXX</span>
+          </div>
+          <div class="card-form-textInput">
+            <span class="tag">比赛标准：</span>
+            <span class="name" th:text="${matchDTO.competitionStandards}">XXXXXX</span>
+          </div>
+          <div class="card-form-textInput">
+            <span class="tag">奖品说明：</span>
+            <span class="name" th:text="${matchDTO.prizeDescription}">XXXXXX</span>
+          </div>
+        </div>
+        <div class="card-button-area">
+          <input type="hidden" name="matchId" th:value="${matchDTO.matchId}">
+          <form th:action="@{/publish}" method="post" th:if="${matchDTO.publish == 0}">
+            <input type="hidden" name="matchId" th:value="${matchDTO.matchId}">
+            <button class="card-button blue" type="submit">发布</button>
+          </form>
+          <form th:action="@{/editMatch}" method="post" th:if="${matchDTO.publish == 0}">
+            <input type="hidden" name="matchId" th:value="${matchDTO.matchId}">
+            <button class="card-button orange" type="submit">修改</button>
+          </form>
+          <button class="card-button blue" th:unless="${matchDTO.publish == 0}" th:onclick="'window.location.href=\'/team/register-competition?matchId=' + ${matchDTO.matchId} + '\''">报名</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div th:text="${message}" id="message" hidden="hidden"></div>
+<!-- 底部间隔横线和版权信息 -->
+<div th:replace="common/competition-common::mall-footer"></div>
+<!-- 错误信息 -->
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    // DOM已加载完成，现在安全地获取元素
+    const messageElement = document.getElementById("message");
+    if (messageElement !== null && messageElement.textContent.trim() !== '') {
+      const message = messageElement.textContent || messageElement.innerText;
+      alert(message)
+    } else {
+      console.log('Message element not found.');
+    }
+  });
+</script>
+</body>
+</html>

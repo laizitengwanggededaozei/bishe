@@ -1,0 +1,82 @@
+.background-view {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: calc(100vw - 400px);
+    height: 100vh;
+    object-fit: cover;
+}
+
+.login-panel {
+    position: fixed;
+    z-index: 10;
+    right: 0;
+    top: 0;
+    width: 400px;
+    border-radius: 10px;
+    bottom: 0;
+    backdrop-filter: blur(20px);
+    background: rgba(255, 255, 255, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    box-shadow: -10px 0 40px #ffffff;
+}
+
+.login-panel .logo-container {
+    background: rgba(255, 255, 255, 1);
+    width: 100%;
+    height: 150px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-panel .logo-img {
+    width: 300px;
+    margin-top: 40px;
+}
+
+.login-panel .form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 30px;
+}
+
+.login-panel .form-container .form-field {
+    width: 300px;
+}
+
+.login-panel .form-container .form-field .field-title {
+    font-size: 14px;
+}
+
+.login-panel .form-container .form-field .field-input {
+    margin-top: 12px;
+}
+
+.login-panel .form-container .form-field-password {
+    margin-top: 20px;
+}
+
+.login-panel .form-container .login-btn {
+    width: 240px;
+    margin-top: 40px;
+}
+
+.login-panel .more-actions-container {
+    margin-top: 30px;
+}
+
+.login-panel .flex-box {
+    flex-grow: 1;
+}
+
+.login-panel .copyright-container {
+    font-size: 13px;
+    padding: 20px;
+    color: #cccccc;
+}

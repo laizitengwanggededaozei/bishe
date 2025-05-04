@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+<div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+    <h1 class="text-2xl font-bold text-blue-600 text-center">高校竞赛组织管理系统</h1>
+    <p class="text-center text-gray-500 mt-2">创建账号</p>
+    <p class="text-center text-gray-500">输入你的个人信息来创建</p>
+
+    <!-- 表单开始 -->
+    <form th:action="@{/register}" method="post" class="mt-6" onsubmit="return processId()">
+
+        <!-- 错误提示 -->
+        <p th:if="${registrationError != null}" class="error-message" th:text="${registrationError}"></p>
+        <p th:if="${passwordError != null}" class="error-message" th:text="${passwordError}"></p>
+
+        <!-- 学号/教工号/组织者账号输入框 -->
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-2" for="id">账号ID</label>
+            <input class="w-full px-3 py-2 border rounded" type="text" id="id" name="id"
+                   th:value="${user.id}" placeholder="学号/教工号/组织者账号"/>
+        </div>
+        <!-- 姓名输入框 -->
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-2" for="uname">姓名</label>
+            <input class="w-full px-3 py-2 border rounded" type="text" id="uname" name="uname"
+                   th:value="${user.uname}" placeholder="真实姓名"/>
+        </div>
+
+        <!-- 密码输入框及错误提示 -->
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-2" for="upwd">密码</label>
+            <input class="w-full px-3 py-2 border rounded" type="password" id="upwd" name="upwd"
+                   placeholder="长度至少8位，含有数字、字母、符号且包含大小写字母"/>
+            <p id="passwordError" class="error-message"></p>
+        </div>
+
+        <!-- 邮箱输入框 -->
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-2" for="umail">邮箱</label>
+            <input class="w-full px-3 py-2 border rounded" type="email" id="umail" name="umail"
+                   th:value="${user.umail}" placeholder="邮箱"/>
+        </div>
+
+        <!-- 角色选择框 -->
+        <div class="mb-4 flex items-center">
+            <div th:each="role : ${roles}">
+                <input type="radio" id="role" th:id="'role_' + ${role}" name="role"
+                       th:value="${role}" th:checked="${selectedRole == role}"/>
+                <label th:for="'role_' + ${role}" class="mr-4 text-gray-700" th:text="${role}"></label>
+            </div>
+        </div>
+
+        <input type="hidden" id="processedId" name="processedId"/>
+
+        <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">注册</button>
+
+    </form>
+
+    <p class="text-center text-gray-700 mt-4">已有账号？<a href="/login" class="text-blue-500">点我登录</a></p>
+    <p class="text-right text-gray-500 mt-4">123456782024®</p>
+</div>
+
+<script>
+    function processId() {
+        const idInput = document.getElementById('id').value;
+        const roleInputs = document.getElementsByName('role');
+        let selectedRole = '';
+
+        for (const roleInput of roleInputs) {
+            if (roleInput.checked) {
+                selectedRole = roleInput.value;
+                break;
+            }
+        }
+
+        let prefix = '';
+        switch (selectedRole) {
+            case '学生':
+                prefix = 'S';
+                break;
+            case '教师':
+                prefix = 'T';
+                break;
+            case '组织者':
+                prefix = 'B';
+                break;
+            default:
+                break;
+        }
+
+        document.getElementById('processedId').value = prefix + idInput;
+
+        // 密码强度验证
+        const password = document.getElementById('upwd').value;
+        const passwordError = document.getElementById('passwordError');
+        if (!isStrongPassword(password)) {
+            passwordError.innerText = '密码强度不够，请确保密码长度至少8位，含有数字、字母、符号且包含大小写字母。';
+            return false;
+        } else {
+            passwordError.innerText = '';
+            return true;
+        }
+    }
+
+    function isStrongPassword(password) {
+        if (password.length < 8) return false;
+        const hasDigit = /\d/.test(password);
+        const hasLower = /[a-z]/.test(password);
+        const hasUpper = /[A-Z]/.test(password);
+        const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+        return hasDigit && hasLower && hasUpper && hasSymbol;
+    }
+</script>
+
+</body>
+</html>

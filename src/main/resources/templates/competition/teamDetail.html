@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/competition-common :: common_head(${myLinks}, ${myScripts})">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>团队详情</title>
+    <link rel="stylesheet" href="/libs/bootstrap5/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #F2F2F2;
+            color: #003366;
+        }
+        .com-title {
+            color: #003366;
+        }
+        .tag {
+            color: #003366;
+            font-weight: bold;
+        }
+        .form-control {
+            background-color: #FFFFFF;
+            color: #003366;
+        }
+        .card {
+            background-color: #FFFFFF;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .logo-container {
+            width: 25%;
+            height: auto;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            float: left;
+        }
+        .logo-container img {
+            width: 100%;
+            height: auto;
+        }
+        .info-container {
+            margin-left: 30%;
+        }
+        .member-list {
+            margin-top: 20px;
+        }
+        .member-item {
+            padding: 10px;
+            border: 1px solid #003366;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            background-color: #FFFFFF;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .action-links {
+            margin-top: 10px;
+        }
+        .edit-icon {
+            cursor: pointer;
+            color: #29B6F6;
+            margin-left: 10px;
+        }
+        .edit-icon:hover {
+            color: #0277BD;
+        }
+        .btn-primary {
+            background-color: #29B6F6;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #0277BD;
+        }
+        .btn-secondary {
+            background-color: #B0BEC5;
+            border: none;
+        }
+        .btn-secondary:hover {
+            background-color: #78909C;
+        }
+        .card-form-list {
+            padding: 20px;
+            border: 1px solid #003366;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            background-color: #FFFFFF;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="common/competition-common::mall-header"></div>
+<div th:replace="common/competition-common::competition-sidebar"></div>
+<div class="com-body">
+    <div class="com-title">团队详情</div>
+    <form th:action="@{/team/update}" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="teamId" th:value="${team.id}">
+        <div class="card main-card">
+            <div class="com-title">团队信息</div>
+            <div class="card-body">
+                <div class="card-form-list">
+                    <div class="logo-container">
+                        <img th:if="${team.logo != null && !team.logo.isEmpty()}" th:src="@{${team.logo}}" alt="团队Logo">
+                        <img th:unless="${team.logo != null && !team.logo.isEmpty()}" src="/image/NoImg.png" alt="Default Card Image">
+                    </div>
+                    <div class="info-container">
+                        <div>
+                            <span class="tag">团队名称：</span>
+                            <label>
+                                <input type="text" name="tname" th:value="${team.tname}" class="form-control" readonly></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="com-title">队长信息</div>
+                    <div class="card-body">
+                        <div>
+                            <span class="tag">队长：</span>
+                            <div class="name">
+                                <span th:each="leader : ${teamLeader}" th:text="${leader.uid} + ' ' + ${leader.uname}">学号 姓名</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="com-title">指导教师</div>
+                    <div class="card-body">
+                        <div class="member-list">
+                            <div class="member-item" th:each="member : ${teacherMembers}">
+                                <span class="member-role">教师号：</span> <span th:text="${member.uid}">教师号</span><br/>
+                                <span class="member-role">姓名：</span> <span th:text="${member.uname}">姓名</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="com-title">学生成员</div>
+            <div class="card-body">
+                <div class="member-list">
+                    <div class="member-item" th:each="member : ${studentMembers}">
+                        <span class="member-role">学号：</span> <span th:text="${member.uid}">学号</span><br/>
+                        <span class="member-role">姓名：</span> <span th:text="${member.uname}">姓名</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group text-center">
+            <a th:href="'/team/detail/modify?id=' + ${team.id}" class="btn btn-primary">更新团队信息</a>
+            <button type="button" class="btn btn-secondary" onclick="window.location.href='/team/manage'">返回</button>
+        </div>
+    </form>
+</div>
+<div th:replace="common/competition-common::mall-footer"></div>
+</body>
+</html>

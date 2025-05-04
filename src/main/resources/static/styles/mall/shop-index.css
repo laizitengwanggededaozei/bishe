@@ -1,0 +1,74 @@
+.mall-body {
+    position: relative;
+}
+
+.shop-logo {
+    height: 300px;
+    object-fit: cover;
+    border-radius: 20px;
+}
+
+.shop-info {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(20px);
+    padding: 0 30px;
+    border-radius: 20px;
+}
+
+.shop-title {
+    font-size: 30px;
+    font-weight: bold;
+    color: #007d03;
+}
+
+.type-group-list {
+    margin-top: 20px;
+}
+
+.type-group-list .type-group-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 6px 0;
+    cursor: pointer;
+}
+
+.type-group-list .type-group-item .group-name {
+    margin-right: 30px;
+    width: 120px;
+}
+
+.type-group-list .type-group-item .type-list {
+    display: flex;
+    flex-direction: row;
+}
+
+.type-group-list .type-group-item .type-list .type-item {
+    margin-right: 20px;
+    color: #0d6efd;
+    text-decoration: underline;
+}
+
+.type-group-list .type-group-item .type-list .type-item-selected-true {
+    color: #fd0d0d;
+    font-weight: bold;
+}
+
+.type-group-list .type-group-item .type-list .type-item .type-name {
+
+}
+
+.no-data-list {
+    font-size: 20px;
+    text-align: center;
+    margin: 50px;
+    color: #888888;
+}

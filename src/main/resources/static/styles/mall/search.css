@@ -1,0 +1,12 @@
+.no-data-list {
+    font-size: 20px;
+    text-align: center;
+    margin: 50px;
+    color: #888888;
+}
+
+.result-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 10px 0;
+}

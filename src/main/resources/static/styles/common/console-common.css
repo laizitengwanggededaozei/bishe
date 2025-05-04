@@ -1,0 +1,96 @@
+.navigation-bar {
+    padding: 22px;
+    border-bottom: 1px solid #cccccc;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.navigation-bar .nav-title {
+    color: #777777;
+    font-weight: bold;
+    font-size: 24px;
+}
+
+.navigation-bar .action-bar {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.navigation-bar .neumall-nav-back-btn {
+    font-size: 30px;
+    margin-right: 10px;
+    cursor: pointer;
+    transition: all 400ms;
+}
+
+.navigation-bar .neumall-nav-back-btn:hover {
+    margin-right: 15px;
+    color: var(--theme-color-primary);
+}
+
+.navigation-bar .action-bar .action-bar-item {
+    margin-left: 10px;
+}
+
+.navigation-bar .action-bar .search-input {
+    width: 240px;
+}
+
+.module-body {
+    padding: 20px;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.module-body .neumall-editor-form {
+    width: 500px;
+}
+
+.module-body .neumall-editor-form .neumall-editor-form-item {
+    margin-bottom: 20px;
+}
+
+.module-body .neumall-editor-form .neumall-editor-form-item .neumall-editor-form-item-title {
+
+}
+
+.module-body .neumall-editor-form .neumall-editor-form-item .neumall-editor-form-item-input {
+}
+
+.module-body .neumall-editor-form .neumall-editor-form-err-msg {
+    color: red;
+    margin: 10px 0;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.module-body .neumall-editor-form .neumall-editor-form-action-container {
+    margin-top: 14px;
+}
+
+.pager-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.pager-container .page-info {
+    font-size: 14px;
+    color: #777777;
+}
+
+.pager-container .pager-body {
+    margin-top: 8px;
+}
+
+.pager-container .pager-body .page-link {
+    cursor: pointer;
+}
+
+/*让表格的单元格内容垂直居中*/
+.module-body .table tr td {
+    vertical-align: middle;
+}

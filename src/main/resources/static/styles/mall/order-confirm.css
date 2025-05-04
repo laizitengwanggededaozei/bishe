@@ -1,0 +1,72 @@
+.tip-title {
+    font-size: 20px;
+    padding: 20px 10px;
+    border-bottom: 1px solid #dddddd;
+    margin-bottom: 12px;
+}
+
+.cart-item-list {
+
+}
+
+.cart-item-list .cart-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: #f8f8f8;
+    margin-top: 12px;
+}
+
+.cart-item-list .cart-item .sku-img {
+    width: 150px;
+    height: 120px;
+    border: 1px solid #dddddd;
+    margin-right: 12px;
+}
+
+.cart-item-list .cart-item .cart-info {
+    flex-grow: 1;
+}
+
+.cart-item-list .cart-item .cart-info .goods-name {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.cart-item-list .cart-item .cart-info .sku-remark {
+    margin-top: 20px;
+    color: #555555;
+}
+
+.cart-item-list .cart-item .cart-info .sku-price {
+    color: rgba(255, 0, 0, 0.8);
+}
+
+.cart-item-list .cart-item .cart-item-remove-btn {
+    margin-right: 20px;
+}
+
+.full-info {
+    margin-top: 30px;
+    border-top: 1px solid #aaaaaa;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.info-line {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.info-line .shipping-address-select {
+    width: 500px;
+}
+
+.actions-area {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: row-reverse;
+}

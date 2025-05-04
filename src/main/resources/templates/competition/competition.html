@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/competition-common :: common_head(${myLinks}, ${myScripts})">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>赛事详情页面</title>
+</head>
+<body>
+<div th:replace="common/competition-common::mall-header"></div>
+<div th:replace="common/competition-common::competition-sidebar"></div>
+<!-- 主内容区 -->
+<div class="com-body">
+    <div class="com-title">赛事详情</div>
+    <div class="com-cardList">
+        <div class="card  card-form">
+            <div class="com-title" th:text="${competitionDTO.comName}">XXXXXX</div>
+            <div class="card-form-list">
+                <div class="card  card-form">
+                    <img class="card-page" th:if="${competitionDTO.imageUrl != null and !competitionDTO.imageUrl.isEmpty()}" th:src="${competitionDTO.imageUrl}">
+                    <img class="card-page" th:unless="${competitionDTO.imageUrl != null and !competitionDTO.imageUrl.isEmpty()}" th:src="@{/image/NoImg.png}" alt="Default Card Image" />
+                </div>
+                <div class="card-content">
+                    <div class="card-form-inputBar">
+                        <span class="tag">主办方：</span>
+                        <span class="name" th:text="${competitionDTO.organizer}">XXXXXX</span>
+                    </div>
+                    <div class="card-form-inputBar">
+                        <span class="tag">赛事级别：</span>
+                        <span class="name" th:text="${competitionDTO.comLevel}">XXXXXX</span>
+                    </div>
+                    <div class="card-form-inputBar">
+                        <span class="tag">学科：</span>
+                        <span class="name" th:text="${competitionDTO.discipline}">XXXXXX</span>
+                    </div>
+                    <div class="card-form-inputBar">
+                        <span class="tag">赛事官网：</span>
+                        <span class="name" th:text="${competitionDTO.comWebsite}">XXXXXX</span>
+                    </div>
+                    <div class="card-form-textInput">
+                        <span class="tag">赛事简介：</span>
+                        <span class="name" th:text="${competitionDTO.comProfile}">XXXXXX</span>
+                    </div>
+                    <div class="card-form-textInput">
+                        <span class="tag">赛事宗旨：</span>
+                        <span class="name" th:text="${competitionDTO.comPurpose}">XXXXXX</span>
+                    </div>
+                    <div class="card-form-textInput">
+                        <span class="tag">其他说明：</span>
+                        <span class="name" th:text="${competitionDTO.comOther}">XXXXXX</span>
+                    </div>
+                </div>
+                <form class="card-button-area" th:action="@{/editCompetition}" method="post">
+                    <input type="hidden" name="comId" th:value="${competitionDTO.comId}">
+                    <button class="card-button orange" type="submit">修改</button>
+                </form>
+            </div>
+        </div>
+        <div class="card  card-list">
+            <div class="com-title">最新比赛</div>
+            <div class="card-form-list">
+                <a  class="card-link" th:href="'/match?id=' + ${matchDTO.matchId}">
+                    <div class="card  card-list-img">
+                        <img class="card-image" th:if="${matchDTO.imageUrl != null and !matchDTO.imageUrl.isEmpty()}" th:src="${matchDTO.imageUrl}">
+                        <img class="card-image" th:unless="${matchDTO.imageUrl != null and !matchDTO.imageUrl.isEmpty()}" th:src="@{/image/NoImg.png}" alt="Default Card Image" />
+                    </div>
+                    <div class="card  card-list-text">
+                        <div class="card-name" th:if="${matchDTO.matchName != null and !matchDTO.matchName.isEmpty()}" th:text="${matchDTO.matchName}">xxxxxx</div>
+                        <div class="card-name" th:unless="${matchDTO.matchName != null and !matchDTO.matchName.isEmpty()}">暂无比赛信息</div>
+                        <div class="card-main" th:text="${matchDTO.competitionStandards}">xxxxxx</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:text="${message}" id="message" hidden="hidden"></div>
+<!-- 底部间隔横线和版权信息 -->
+<div th:replace="common/competition-common::mall-footer"></div>
+<!-- 错误信息 -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // DOM已加载完成，现在安全地获取元素
+        const messageElement = document.getElementById("message");
+        if (messageElement !== null && messageElement.textContent.trim() !== '') {
+            const message = messageElement.textContent || messageElement.innerText;
+            alert(message)
+        } else {
+            console.log('Message element not found.');
+        }
+    });
+</script>
+</body>
+</html>

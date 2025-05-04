@@ -1,0 +1,86 @@
+.background-view {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: calc(100vw - 400px);
+    height: 100vh;
+    object-fit: cover;
+}
+
+.register-panel {
+    position: fixed;
+    z-index: 10;
+    right: 0;
+    top: 0;
+    width: 400px;
+    border-radius: 10px;
+    bottom: 0;
+    backdrop-filter: blur(20px);
+    background: rgba(255, 255, 255, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    box-shadow: -10px 0 40px #ffffff;
+}
+
+.register-panel .logo-container {
+    background: rgba(255, 255, 255, 1);
+    width: 100%;
+    height: 150px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.register-panel .logo-img {
+    width: 300px;
+    margin-top: 40px;
+}
+
+.register-panel .form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 30px;
+}
+
+.register-panel .form-container .form-field {
+    width: 300px;
+    margin-bottom: 18px;
+}
+
+.register-panel .form-container .form-field .field-title {
+    font-size: 14px;
+}
+
+.register-panel .form-container .form-field .field-input {
+    margin-top: 12px;
+}
+
+.register-panel .form-container .form-field-password {
+}
+
+.register-panel .form-container .err-msg {
+    color: red;
+}
+
+.register-panel .form-container .register-btn {
+    width: 240px;
+    margin-top: 40px;
+}
+
+.register-panel .more-actions-container {
+    margin-top: 30px;
+}
+
+.register-panel .flex-box {
+    flex-grow: 1;
+}
+
+.register-panel .copyright-container {
+    font-size: 13px;
+    padding: 20px;
+    color: #cccccc;
+}

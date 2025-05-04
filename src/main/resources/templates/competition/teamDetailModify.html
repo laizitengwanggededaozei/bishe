@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/competition-common :: common_head(${myLinks}, ${myScripts})">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>修改团队信息</title>
+    <style>
+        .member-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .member-item {
+            border: 1px solid #007bff;
+            padding: 10px;
+            border-radius: 10px;
+            background-color: #f1f9ff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .member-role {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="common/competition-common::mall-header"></div>
+<div th:replace="common/competition-common::competition-sidebar"></div>
+<div class="com-body">
+    <div class="com-title">修改团队信息</div>
+    <div class="card card-form">
+        <form th:action="@{/team/update}" method="post" th:object="${team}" enctype="multipart/form-data" onsubmit="return validateForm()">
+            <input type="hidden" th:value="${team.id}" name="teamId" id="teamId">
+            <div class="mb-3">
+                <label for="teamName" class="form-label">团队名称</label>
+                <input type="text" class="form-control" id="teamName" name="tname" th:field="*{tname}" required>
+            </div>
+            <div class="mb-3">
+                <label for="teamLogo" class="form-label">团队Logo</label>
+                <input type="file" class="form-control" id="teamLogo" name="logoFile">
+                <div class="logo-container" th:if="${team.logo != null && !team.logo.isEmpty()}">
+                    <img th:src="@{${team.logo}}" alt="团队Logo">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="leader" class="form-label">队长</label>
+                <div class="member-item" id="leaderMember">
+                    <span th:if="${teamLeader != null}" th:text="${teamLeader.uid + ' ' + teamLeader.uname}"></span>
+                    <input type="hidden" th:if="${teamLeader != null}" name="leaderMember" th:value="${teamLeader.uid}">
+                    <div class="action-links">
+                        <a href="javascript:void(0);" onclick="toggleLeaderSearch()" class="edit-icon">更换</a>
+                    </div>
+                </div>
+                <div id="leaderSearchContainer" style="display:none;">
+                    <label for="leaderSearch">输入新队长ID搜索</label>
+                    <input type="text" class="form-control" id="leaderSearch" placeholder="输入新队长ID搜索">
+                    <button type="button" class="btn btn-primary" onclick="searchLeader()">确认更换</button>
+                    <button type="button" class="btn btn-secondary" onclick="cancelLeaderChange()">取消</button>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="studentMembers" class="form-label">学生成员</label>
+                <input type="text" class="form-control" id="studentSearch" placeholder="输入学生ID搜索">
+                <button type="button" class="btn btn-primary" onclick="searchMember('student')">添加</button>
+                <div class="member-list" id="studentMembersList">
+                    <div class="member-item" th:each="member : ${studentMembers}">
+                        <span th:text="${member.uid + ' ' + member.uname}"></span>
+                        <input type="hidden" name="studentMembers" th:value="${member.uid}">
+                        <button type="button" class="btn btn-danger" onclick="removeMember(this, 'student')">取消</button>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="teacherMembers" class="form-label">指导教师</label>
+                <input type="text" class="form-control" id="teacherSearch" placeholder="输入教师ID搜索">
+                <button type="button" class="btn btn-primary" onclick="searchMember('teacher')">添加</button>
+                <div class="member-list" id="teacherMembersList">
+                    <div class="member-item" th:each="member : ${teacherMembers}">
+                        <span th:text="${member.uid + ' ' + member.uname}"></span>
+                        <input type="hidden" name="teacherMembers" th:value="${member.uid}">
+                        <button type="button" class="btn btn-danger" onclick="removeMember(this, 'teacher')">取消</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">保存修改</button>
+                <button type="button" class="btn btn-secondary" onclick="window.history.back()">取消</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div th:replace="common/competition-common::mall-footer"></div>
+
+<script>
+    let studentCount = 0;
+    let teacherCount = 0;
+    let originalLeader = null;
+
+    function validateForm() {
+        const teamName = document.getElementById('teamName').value;
+        const teamLogo = document.getElementById('teamLogo').files.length;
+        const studentMembers = document.querySelectorAll('input[name="studentMembers"]').length;
+        const teacherMembers = document.querySelectorAll('input[name="teacherMembers"]').length;
+
+        if (!teamName) {
+            alert('团队名称不能为空');
+            return false;
+        }
+
+        if (studentMembers < 1) {
+            alert('至少需要添加一名学生成员');
+            return false;
+        }
+
+        if (teacherMembers < 1) {
+            alert('至少需要添加一名教师成员');
+            return false;
+        }
+
+        return true;
+    }
+
+    function toggleLeaderSearch() {
+        const leaderSearchContainer = document.getElementById('leaderSearchContainer');
+        if (leaderSearchContainer.style.display === 'none') {
+            leaderSearchContainer.style.display = 'block';
+        } else {
+            leaderSearchContainer.style.display = 'none';
+        }
+    }
+
+    function searchMember(type) {
+        const id = type === 'student' ? document.getElementById('studentSearch').value : document.getElementById('teacherSearch').value;
+        fetch(`/team/searchMember?id=${id}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.id && data.uname) {
+                    const memberList = type === 'student' ? document.getElementById('studentMembersList') : document.getElementById('teacherMembersList');
+                    const memberItem = document.createElement('div');
+                    memberItem.className = 'member-item';
+                    memberItem.innerHTML = `
+                    <span>${data.id} ${data.uname}</span>
+                    <input type="hidden" name="${type === 'student' ? 'studentMembers' : 'teacherMembers'}" value="${data.id}">
+                    <button type="button" class="btn btn-danger" onclick="removeMember(this, '${type}')">取消</button>
+                `;
+                    memberList.appendChild(memberItem);
+                    if (type === 'student') {
+                        studentCount++;
+                    } else {
+                        teacherCount++;
+                    }
+                    document.getElementById(type === 'student' ? 'studentSearch' : 'teacherSearch').value = '';
+                } else {
+                    alert('未找到该成员');
+                }
+            });
+    }
+
+    function removeMember(button, type) {
+        const memberItem = button.parentNode;
+        memberItem.parentNode.removeChild(memberItem);
+        if (type === 'student') {
+            studentCount--;
+        } else {
+            teacherCount--;
+        }
+    }
+
+    function searchLeader() {
+        const id = document.getElementById('leaderSearch').value;
+        fetch(`/team/searchMember?id=${id}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.id && data.uname) {
+                    const leaderMember = document.getElementById('leaderMember');
+                    const studentMembersList = document.getElementById('studentMembersList');
+                    let originalLeaderHtml = leaderMember.innerHTML;
+
+                    if (originalLeader === null) {
+                        originalLeader = {
+                            id: document.querySelector('input[name="leaderMember"]').value,
+                            uname: leaderMember.querySelector('span').textContent.split(' ')[1]
+                        };
+                    }
+
+                    leaderMember.innerHTML = `
+                    <span>${data.id} ${data.uname}</span>
+                    <input type="hidden" name="leaderMember" value="${data.id}">
+                    <div class="action-links">
+                        <a href="javascript:void(0);" onclick="toggleLeaderSearch()" class="edit-icon">更换</a>
+                    </div>
+                `;
+
+                    // Add the original leader to the student members list
+                    let found = false;
+                    studentMembersList.childNodes.forEach(child => {
+                        if (child.querySelector('input').value === data.id) {
+                            child.querySelector('span').textContent += '（将被升为队长）';
+                            found = true;
+                        }
+                    });
+                    if (!found) {
+                        const newStudentItem = document.createElement('div');
+                        newStudentItem.className = 'member-item';
+                        newStudentItem.innerHTML = `
+                        <span>${originalLeader.id} ${originalLeader.uname}（已被降为队员）</span>
+                        <input type="hidden" name="studentMembers" value="${originalLeader.id}">
+                        <button type="button" class="btn btn-danger" onclick="removeMember(this, 'student')">取消</button>
+                    `;
+                        studentMembersList.appendChild(newStudentItem);
+                    }
+
+                    document.getElementById('leaderSearch').value = '';
+                    toggleLeaderSearch();
+                } else {
+                    alert('未找到该成员');
+                }
+            });
+    }
+
+    function cancelLeaderChange() {
+        if (originalLeader) {
+            const leaderMember = document.getElementById('leaderMember');
+            leaderMember.innerHTML = `
+                <span>${originalLeader.id} ${originalLeader.uname}</span>
+                <input type="hidden" name="leaderMember" value="${originalLeader.id}">
+                <div class="action-links">
+                    <a href="javascript:void(0);" onclick="toggleLeaderSearch()" class="edit-icon">更换</a>
+                </div>
+            `;
+            originalLeader = null;
+            alert('取消设置队长');
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+.pay-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-top: 30px;
+}
+
+.pay-container .tip-line {
+    font-size: 15px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.pay-container .pay-code-img {
+    width: 300px;
+    height: 300px;
+    margin-top: 20px;
+}
+
+.pay-container .pay-complete-btn {
+    margin-top: 30px;
+}

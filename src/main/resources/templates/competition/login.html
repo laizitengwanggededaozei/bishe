@@ -1,0 +1,37 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>高校竞赛组织管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+</head>
+<body class="flex items-center justify-center min-h-screen bg-gray-100">
+<div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+    <h1 class="text-2xl font-bold text-blue-600 text-center">高校竞赛组织管理系统</h1>
+    <p class="text-center text-gray-500 mt-2">登录账号</p>
+    <!-- 显示登录错误提示 -->
+    <div th:if="${loginError != null}" class="text-red-500 text-sm mb-4">
+        <p th:text="${loginError}">无效的账号或密码</p>
+    </div>
+    <form th:action="@{/login}" th:object="${user}" method="post" class="mt-6">
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-2">账号</label>
+            <input class="w-full px-3 py-2 border rounded" type="text" th:field="*{id}" placeholder="学号/教工号/组织者账号"/>
+        </div>
+        <!-- 显示密码输入框验证错误提示 -->
+        <div th:if="${#fields.hasErrors('upwd')}" class="text-red-500 text-sm mb-4">
+            <p th:errors="*{upwd}">密码错误</p>
+        </div>
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-2">密码</label>
+            <input class="w-full px-3 py-2 border rounded" type="password" th:field="*{upwd}" placeholder=""/>
+        </div>
+        <button class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">登录</button>
+    </form>
+    <p class="text-center text-gray-700 mt-4">没有账号？<a href="/register" class="text-blue-500">点我注册</a></p>
+    <p class="text-right text-gray-500 mt-4">123456782024©</p>
+</div>
+</body>
+</html>

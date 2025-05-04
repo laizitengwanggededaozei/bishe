@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/competition-common :: common_head(${myLinks}, ${myScripts})">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>报名参赛</title>
+    <style>
+        .card {
+            border: 1px solid #ccc;
+            margin: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            position: relative;
+        }
+        .card-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .card-body {
+            margin-bottom: 10px;
+        }
+        .card img {
+            max-width: 50px;
+            margin-right: 10px;
+        }
+        .radio-container {
+            text-align: right;
+            margin-top: 10px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 10px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="common/competition-common::mall-header"></div>
+<div th:replace="common/competition-common::competition-sidebar"></div>
+<!-- 主内容区 -->
+<div class="com-body">
+    <div class="com-title">报名参赛</div>
+    <div th:if="${teams.size() == 0}">
+        <p>您目前没有符合条件的团队，请先 <a href="/team/create">创建团队</a>。</p>
+    </div>
+    <form th:if="${teams.size() > 0}" th:action="@{/submitRegistration}" method="post" onsubmit="return validateSelection()">
+        <div class="com-cardList">
+            <div th:each="team : ${teams}">
+                <div class="card">
+                    <div class="card-header">
+                        <strong th:text="${team.tname}">团队名称</strong>
+                    </div>
+                    <div class="card-body">
+                        <div class="radio-container">
+                            <label>
+                                <input type="radio" name="teamId" th:value="${team.id}" onclick="toggleSelection(this)"/>
+                                选择
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">确认报名</button>
+    </form>
+</div>
+<div th:replace="common/competition-common::mall-footer"></div>
+
+<!-- 报名成功提示 -->
+<div id="successModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeSuccessModal()">&times;</span>
+        <p>报名成功！</p>
+    </div>
+</div>
+
+<script>
+    function toggleSelection(radio) {
+        if (radio.checked) {
+            document.querySelectorAll('input[name="teamId"]').forEach(input => {
+                if (input !== radio) {
+                    input.checked = false;
+                }
+            });
+        } else {
+            radio.checked = false;
+        }
+    }
+
+    function validateSelection() {
+        const selectedTeam = document.querySelector('input[name="teamId"]:checked');
+        if (!selectedTeam) {
+            alert('请先选择一个团队');
+            return false;
+        }
+        return true;
+    }
+    function closeSuccessModal() {
+        document.getElementById('successModal').style.display = 'none';
+    }
+
+    // 在表单提交成功后调用 showSuccessModal
+    window.addEventListener('load', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('success') === 'true') {
+            showSuccessModal();
+        }
+    });
+</script>
+</body>
+</html>

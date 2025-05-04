@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head th:replace="common/competition-common :: common_head(${myLinks}, ${myScripts})">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的赛事页面</title>
+</head>
+<body>
+<div th:replace="common/competition-common::mall-header"></div>
+<div th:replace="common/competition-common::competition-sidebar"></div>
+<!-- 主内容区 -->
+<div class="com-body">
+    <div class="com-title">创建赛事</div>
+    <div class="com-cardList">
+        <form class="card  card-form" action="/create" th:action="@{/create}" method="post" th:object="${competitionDTO}" enctype="multipart/form-data">
+            <div class="com-title">填写表单</div>
+            <div class="card-form-list">
+                <div class="card-form-column">
+                    <div class="card-form-inputBar">
+                        <label class="tag" for="comName">赛事名称：</label>
+                        <input class="input" id="comName" name="comName" type="text" th:field="*{comName}" th:value="${competitionDTO.comName}" required>
+                    </div>
+                    <div class="card-form-inputBar">
+                        <label class="tag" for="organizer">主办方：</label>
+                        <input class="input" id="organizer" name="organizer" type="text" th:field="*{organizer}" th:value="${competitionDTO.organizer}" required>
+                    </div>
+                    <div class="card-form-inputBar">
+                        <label class="tag" for="comLevel">赛事级别：</label>
+                        <select class="input" name="comLevel" id="comLevel" th:field="*{comLevel}" th:value="${competitionDTO.comLevel}" required>
+                            <option value="院级">院级</option>
+                            <option value="校级">校级</option>
+                            <option value="省级">省级</option>
+                            <option value="国家级">国家级</option>
+                            <option value="世界级">世界级</option>
+                        </select>
+                    </div>
+                    <div class="card-form-inputBar">
+                        <label class="tag" for="discipline">学科：</label>
+                        <input class="input" id="discipline" name="discipline" type="text" th:field="*{discipline}" th:value="${competitionDTO.discipline}" required>
+                    </div>
+                    <div class="card-form-inputBar">
+                        <label class="tag" for="comWebsite">赛事官网：</label>
+                        <input class="input" id="comWebsite" name="comWebsite" type="text" th:field="*{comWebsite}" th:value="${competitionDTO.comWebsite}" required>
+                    </div>
+                </div>
+                <div class="card-form-column">
+                    <div class="card-form-inputBar">
+                        <label class="tag" for="image">赛事海报：</label>
+                        <input class="input" id="image" name="image" type="file" accept=".jpg,.jpeg,.png">
+                    </div>
+                    <input type="hidden" id="imageUrl" th:value="${competitionDTO.imageUrl}">
+                    <div class="card" id="imageView" style="width: 500px; height: 280px;">
+
+                    </div>
+                </div>
+                <div style="width: 100%">
+                    <div class="card-form-textInput">
+                        <label class="tag" for="comProfile">赛事简介：</label>
+                        <textarea class="text" id="comProfile" name="comProfile" th:field="*{comProfile}" th:text="${competitionDTO.comProfile}"></textarea>
+                    </div>
+                    <div class="card-form-textInput">
+                        <label class="tag" for="comPurpose">赛事宗旨：</label>
+                        <textarea class="text" id="comPurpose" name="comPurpose" th:field="*{comPurpose}" th:text="${competitionDTO.comPurpose}"></textarea>
+                    </div>
+                    <div class="card-form-textInput">
+                        <label class="tag" for="comOther">其他说明：</label>
+                        <textarea class="text" id="comOther" name="comOther" th:field="*{comOther}" th:text="${competitionDTO.comOther}"></textarea>
+                    </div>
+                </div>
+                <div class="card-button-area">
+                    <input type="hidden" name="comId" th:field="*{comId}" th:value="${competitionDTO.comId}">
+                    <input type="hidden" name="comId" th:field="*{commend}" th:value="${competitionDTO.commend}">
+                    <button class="card-button blue" type="submit">提交</button>
+                    <button class="card-button white" onclick="location.href='/myCompetition'">返回</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div th:text="${message}" id="message" hidden="hidden"></div>
+<!-- 底部间隔横线和版权信息 -->
+<div th:replace="common/competition-common::mall-footer"></div>
+<!-- 错误信息 -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // DOM已加载完成，现在安全地获取元素
+        const messageElement = document.getElementById("message");
+        if (messageElement !== null && messageElement.textContent.trim() !== '') {
+            const message = messageElement.textContent || messageElement.innerText;
+            alert(message)
+        } else {
+            console.log('Message element not found.');
+        }
+    });
+</script>
+<script src="/js/competition.js"></script>
+</body>
+</html>

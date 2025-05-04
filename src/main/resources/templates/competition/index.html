@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/competition-common :: common_head(${myLinks}, ${myScripts})">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>校园竞赛平台</title>
+</head>
+<div th:replace="common/competition-common::mall-header"></div>
+<div th:replace="common/competition-common::competition-sidebar"></div>
+<div class="mall-body">
+    <div id="homeBanner" class="carousel slide home-banner">
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#homeBanner" data-bs-slide-to="0" class="active"
+                    aria-current="true" aria-label="Slide 1"></button>
+            <button type="button" data-bs-target="#homeBanner" data-bs-slide-to="1" aria-label="Slide 2"></button>
+            <button type="button" data-bs-target="#homeBanner" data-bs-slide-to="2" aria-label="Slide 3"></button>
+        </div>
+        <!-- 没登录，没有超链接 -->
+        <div class="carousel-inner" th:if="${session.loggedUser == null}">
+            <div class="carousel-item active" th:if="${competitionDTOList[0] != null}">
+                <img class="d-block w-100  h-100" th:if="${competitionDTOList[0].imageUrl != null and !competitionDTOList[0].imageUrl.isEmpty()}" th:src="${competitionDTOList[0].imageUrl}" alt="Card Image" />
+                <img class="d-block w-100  h-100" th:unless="${competitionDTOList[0].imageUrl != null and !competitionDTOList[0].imageUrl.isEmpty()}" th:src="@{/image/NoImg.png}" alt="Default Card Image" />
+            </div>
+            <div th:if="${competitionDTOList.size() > 1}">
+                <div class="carousel-item" th:each="competition, iterStat : ${competitionDTOList}" th:if="${iterStat.index != 0}">
+                    <img class="d-block w-100 h-100" th:if="${competition.imageUrl != null and not competition.imageUrl.isEmpty()}" th:src="${competition.imageUrl}" alt="Card Image" />
+                    <img class="d-block w-100 h-100" th:unless="${competition.imageUrl != null and not competition.imageUrl.isEmpty()}" th:src="@{/image/NoImg.png}" alt="Default Card Image" />
+                </div>
+            </div>
+        </div>
+        <!-- 登录了，有超链接 -->
+        <div class="carousel-inner" th:unless="${session.loggedUser == null}">
+            <div class="carousel-item active" th:if="${competitionDTOList[0] != null}">
+                <a th:href="'/competition?id=' + ${competitionDTOList[0].comId}">
+                    <img class="d-block w-100  h-100" th:if="${competitionDTOList[0].imageUrl != null and !competitionDTOList[0].imageUrl.isEmpty()}" th:src="${competitionDTOList[0].imageUrl}" alt="Card Image" />
+                    <img class="d-block w-100  h-100" th:unless="${competitionDTOList[0].imageUrl != null and !competitionDTOList[0].imageUrl.isEmpty()}" th:src="@{/image/NoImg.png}" alt="Default Card Image" />
+                </a>
+            </div>
+            <div th:if="${competitionDTOList.size() > 1}">
+                <div class="carousel-item" th:each="competition, iterStat : ${competitionDTOList}" th:if="${iterStat.index != 0}">
+                    <a th:href="'/competition?id=' + ${competition.comId}">
+                        <img class="d-block w-100 h-100" th:if="${competition.imageUrl != null and not competition.imageUrl.isEmpty()}" th:src="${competition.imageUrl}" alt="Card Image" />
+                        <img class="d-block w-100 h-100" th:unless="${competition.imageUrl != null and not competition.imageUrl.isEmpty()}" th:src="@{/image/NoImg.png}" alt="Default Card Image" />
+                    </a>
+                </div>
+            </div>
+<!--            <div class="carousel-item active">-->
+<!--                <img src="/images/carousel1.png" class="d-block w-100  h-100">-->
+<!--            </div>-->
+<!--            <div class="carousel-item">-->
+<!--                <img src="/images/carousel2.jpg" class="d-block w-100  h-100">-->
+<!--            </div>-->
+<!--            <div class="carousel-item">-->
+<!--                <img src="/images/carousel3.jpeg" class="d-block w-100 h-100">-->
+<!--            </div>-->
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#homeBanner" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#homeBanner" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+    <div class="pagetitle">
+        <h1>热门赛事</h1>
+    </div>
+    <section class="section">
+        <div class="row align-items-top">
+            <div class="col-lg-4">
+                <!-- Card with an image on top -->
+                <div class="card">
+                    <div th:if="${matchesDTOList[0] != null}">
+                        <a th:href="'/match?id=' + ${matchesDTOList[0].matchId}" class="card-link">
+                            <img class="card-img-top" th:if="${matchesDTOList[0].imageUrl != null and !matchesDTOList[0].imageUrl.isEmpty()}" th:src="${matchesDTOList[0].imageUrl}" alt="Card Image" />
+                            <img class="card-img-top" th:unless="${matchesDTOList[0].imageUrl != null and !matchesDTOList[0].imageUrl.isEmpty()}" th:src="@{/image/NoImg.png}" alt="Default Card Image" />
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${matchesDTOList[0].matchName}">Card with an image on top</h5>
+                                <p class="card-text" th:text="${matchesDTOList[0].competitionStandards}">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                            </div>
+                        </a>
+                    </div>
+                </div><!-- End Card with an image on top -->
+            </div>
+            <div class="col-lg-4">
+                <!-- Card with an image on top -->
+                <div class="card">
+                    <div th:if="${matchesDTOList[1] != null}">
+                        <a th:href="'/match?id=' + ${matchesDTOList[1].matchId}" class="card-link">
+                            <img class="card-img-top" th:if="${matchesDTOList[1].imageUrl != null and !matchesDTOList[1].imageUrl.isEmpty()}" th:src="${matchesDTOList[1].imageUrl}" alt="Card Image" />
+                            <img class="card-img-top" th:unless="${matchesDTOList[1].imageUrl != null and !matchesDTOList[1].imageUrl.isEmpty()}" th:src="@{/image/NoImg.png}" alt="Default Card Image" />
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${matchesDTOList[1].matchName}">Card with an image on top</h5>
+                                <p class="card-text" th:text="${matchesDTOList[1].competitionStandards}">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                            </div>
+                        </a>
+                    </div>
+                </div><!-- End Card with an image on top -->
+            </div>
+            <div class="col-lg-4">
+                <!-- Card with an image on top -->
+                <div class="card">
+                    <div th:if="${matchesDTOList[2] != null}">
+                        <a th:href="'/match?id=' + ${matchesDTOList[2].matchId}" class="card-link">
+                            <img class="card-img-top" th:if="${matchesDTOList[2].imageUrl != null and !matchesDTOList[2].imageUrl.isEmpty()}" th:src="${matchesDTOList[2].imageUrl}" alt="Card Image" />
+                            <img class="card-img-top" th:unless="${matchesDTOList[2].imageUrl != null and !matchesDTOList[2].imageUrl.isEmpty()}" th:src="@{/image/NoImg.png}" alt="Default Card Image" />
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${matchesDTOList[2].matchName}">Card with an image on top</h5>
+                                <p class="card-text" th:text="${matchesDTOList[2].competitionStandards}">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                            </div>
+                        </a>
+                    </div>
+                </div><!-- End Card with an image on top -->
+            </div>
+        </div>
+    </section>
+</div>
+<div th:replace="common/competition-common::mall-footerWithoutsidebar"></div>
+</body>
+</html>

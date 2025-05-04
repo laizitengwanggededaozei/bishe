@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/competition-common :: common_head(${myLinks}, ${myScripts})">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>修改个人信息</title>
+</head>
+<body>
+<div th:replace="common/competition-common::mall-header"></div>
+<div th:replace="common/competition-common::competition-sidebar"></div>
+
+<!-- 主内容区 -->
+<div class="com-body">
+    <div class="com-title">修改个人信息</div>
+    <div class="com-card">
+        <div th:if="${param.error == 'update'}" class="alert alert-danger mt-3">
+            保存过程中发生错误，请重试。
+        </div>
+        <div th:if="${param.error == 'email'}" class="alert alert-danger mt-3">
+            邮箱已存在，请使用其他邮箱。
+        </div>
+        <form th:action="@{/profile/update}" th:object="${user}" method="post" enctype="multipart/form-data" class="mt-4">
+            <div class="mb-3">
+                <label for="uname" class="form-label">姓名</label>
+                <input type="text" class="form-control" id="uname" th:field="*{uname}" placeholder="姓名" readonly>
+            </div>
+            <div class="mb-3">
+                <label for="umail" class="form-label">邮箱</label>
+                <input type="email" class="form-control" id="umail" th:field="*{umail}" placeholder="邮箱" required>
+            </div>
+            <div class="mb-3">
+                <label for="profilePicFile" class="form-label">头像</label>
+                <input type="file" class="form-control" id="profilePicFile" name="profilePicFile">
+                <div class="profile-pic mt-2">
+                    <img th:if="${user.uprofilepic != null and !user.uprofilepic.isEmpty()}" th:src="${user.uprofilepic}" alt="Profile picture" />
+                    <img th:unless="${user.uprofilepic != null and !user.uprofilepic.isEmpty()}" th:src="@{/image/default-avatar.png}" alt="Default Profile picture" />
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="upwd" class="form-label">密码</label>
+                <input type="password" class="form-control" id="upwd" th:field="*{upwd}" placeholder="密码">
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">保存修改</button>
+                <button type="button" class="btn btn-secondary" onclick="window.history.back()">取消</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div th:replace="common/competition-common::mall-footer"></div>
+</body>
+</html>
