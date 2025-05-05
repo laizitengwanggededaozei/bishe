@@ -11,7 +11,7 @@
  Target Server Version : 80034
  File Encoding         : 65001
 
- Date: 05/05/2025 06:54:36
+ Date: 05/05/2025 08:23:29
 */
 
 SET NAMES utf8mb4;
@@ -142,9 +142,11 @@ CREATE TABLE `participation_record`  (
 -- Records of participation_record
 -- ----------------------------
 INSERT INTO `participation_record` VALUES (1, 4);
+INSERT INTO `participation_record` VALUES (1, 5);
 INSERT INTO `participation_record` VALUES (2, 4);
 INSERT INTO `participation_record` VALUES (2, 6);
 INSERT INTO `participation_record` VALUES (3, 4);
+INSERT INTO `participation_record` VALUES (3, 6);
 
 -- ----------------------------
 -- Table structure for problem
@@ -298,5 +300,23 @@ INSERT INTO `user` VALUES ('S21008021011', '杨皓东', '21008021011@neu.com', '
 INSERT INTO `user` VALUES ('S21008021019', '刘洋', '21008021019@edu.com', '@Liuyang123', '/image/profile/14.png');
 INSERT INTO `user` VALUES ('Tliutong', '刘彤', 'liutong@neu.com', '@liutong123', '#');
 INSERT INTO `user` VALUES ('Tshengyu', '盛雨', 'shengyu@neu.com', '@Shengyu123', '/image/profile/15.png');
+
+-- ----------------------------
+-- Table structure for user_competition_session
+-- ----------------------------
+DROP TABLE IF EXISTS `user_competition_session`;
+CREATE TABLE `user_competition_session`  (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `match_id` int NOT NULL,
+  `team_id` int NOT NULL,
+  `selected_time` datetime NOT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `user_match`(`user_id`, `match_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of user_competition_session
+-- ----------------------------
 
 SET FOREIGN_KEY_CHECKS = 1;
