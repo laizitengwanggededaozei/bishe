@@ -139,14 +139,14 @@ public class CompetitionController {
 
 	@RequestMapping("/select")
 	public String selectCompetition(@RequestParam(value="comName", required=false) String comName, Model model) {
-        List<CompetitionDTO> list;
-        if (comName == null) {
+		List<CompetitionDTO> list;
+		if (comName == null) {
 			list = competitionService.readCompetition();
-        } else {
+		} else {
 			list = competitionService.findCompetition(comName);
-        }
-        model.addAttribute("competitionList", list);
-        return "competition/searchCompetition";
+		}
+		model.addAttribute("competitionList", list);
+		return "competition/searchCompetition";
 	}
 
 	@RequestMapping("/editMatch")
@@ -190,37 +190,11 @@ public class CompetitionController {
 
 	@GetMapping("/register-competition")
 	public String showRegisterCompetitionPage(@RequestParam("matchId") int matchId, HttpSession session, Model model) {
-		return getString(matchId, session, model, teamService);
+		// 重定向到 team 控制器的注册页面
+		return "redirect:/team/register-competition?matchId=" + matchId;
 	}
 
-	static String getString(@RequestParam("matchId") int matchId, HttpSession session, Model model, TeamService teamService) {
-		return getString(matchId, session, model, teamService);
-	}
-
-	@PostMapping("/submitRegistration")
-	public String submitRegistration(HttpSession session, Model model, @RequestParam("teamId") Integer teamId) {
-		Integer matchId = (Integer) session.getAttribute("matchId");
-
-		if (teamId == null || matchId == null) {
-			model.addAttribute("errorMessage", "未选择团队或比赛ID");
-			return "redirect:/team/register-competition";
-		}
-		User user = (User) session.getAttribute("loggedUser");
-		if (user == null) {
-			return "redirect:/login";
-		}
-		System.out.println("Received teamId: " + teamId);
-		System.out.println("Received matchId: " + matchId);
-		teamService.registerTeamForCompetition(teamId, matchId);
-		model.addAttribute("successMessage", "报名成功！");
-
-		// 清除会话中的teamId和matchId
-		session.removeAttribute("teamId");
-		session.removeAttribute("matchId");
-
-		return "redirect:/registrationSuccess";
-	}
-
+	// 移除重复的 submitRegistration 方法，因为 TeamController 已经提供了此功能
 
 	@GetMapping("/registrationSuccess")
 	public String showRegistrationSuccessPage() {

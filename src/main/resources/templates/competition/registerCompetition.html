@@ -72,7 +72,8 @@
     <div th:if="${teams.size() == 0}">
         <p>您目前没有符合条件的团队，请先 <a href="/team/create">创建团队</a>。</p>
     </div>
-    <form th:if="${teams.size() > 0}" th:action="@{/submitRegistration}" method="post" onsubmit="return validateSelection()">
+    <!-- 修改表单的提交目标从 /submitRegistration 到 /team/submitRegistration -->
+    <form th:if="${teams.size() > 0}" th:action="@{/team/submitRegistration}" method="post" onsubmit="return validateSelection()">
         <div class="com-cardList">
             <div th:each="team : ${teams}">
                 <div class="card">

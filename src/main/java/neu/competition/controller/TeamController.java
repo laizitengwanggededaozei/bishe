@@ -160,14 +160,14 @@ public class TeamController {
         }
     }
 
-    @PostMapping("/team/selectTeam")
+    @PostMapping("/selectTeam")  // Changed from "/team/selectTeam"
     @ResponseBody
     public ResponseEntity<String> selectTeam(@RequestParam("teamId") int teamId, HttpSession session) {
         session.setAttribute("teamId", teamId);
         return ResponseEntity.ok("Team selected");
     }
 
-    static String getString(@RequestParam("matchId") int matchId, HttpSession session, Model model, TeamService teamService) {
+    private String getString(int matchId, HttpSession session, Model model) {
         User user = (User) session.getAttribute("loggedUser");
         if (user == null) {
             return "redirect:/login";
@@ -182,50 +182,16 @@ public class TeamController {
 
     @GetMapping("/register-competition")
     public String showRegisterCompetitionPage(@RequestParam("matchId") int matchId, HttpSession session, Model model) {
-        return getString(matchId, session, model, teamService);
+        return getString(matchId, session, model);
     }
 
-    @PostMapping("/submitRegistration")
-    public String submitRegistration(HttpSession session, Model model, @RequestParam("teamId") Integer teamId) {
-        Integer matchId = (Integer) session.getAttribute("matchId");
-
-        if (teamId == null || matchId == null) {
-            model.addAttribute("errorMessage", "未选择团队或比赛ID");
-            return "redirect:/team/register-competition";
-        }
-        User user = (User) session.getAttribute("loggedUser");
-        if (user == null) {
-            return "redirect:/login";
-        }
-        try {
-            // 注册团队
-            teamService.registerTeamForCompetition(teamId, matchId);
-
-            System.out.println("Received teamId: " + teamId);
-            System.out.println("Received matchId: " + matchId);
-            teamService.registerTeamForCompetition(teamId, matchId);
-            model.addAttribute("successMessage", "报名成功！");
-
-            // 清除会话中的teamId和matchId
-            session.removeAttribute("teamId");
-//            session.removeAttribute("matchId");
-
-            return "redirect:/registrationSuccess";
-        } catch (Exception e) {
-            model.addAttribute("errorMessage", e.getMessage());
-            return "redirect:/team/register-competition?matchId=" + matchId + "&error=true";
-        }
-
-
-
-
-    }
 
 
     @GetMapping("/registrationSuccess")
     public String showRegistrationSuccessPage() {
-        return "competition/registrationSuccess";
+        return "redirect:/registrationSuccess";  // Redirect to the non-team specific success page
     }
+
     @GetMapping("/my-teams")
     public String myTeams(Model model, HttpSession session) {
         User user = (User) session.getAttribute("loggedUser");
