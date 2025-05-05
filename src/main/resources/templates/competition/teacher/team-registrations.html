@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/competition-common :: common_head(${myLinks}, ${myScripts})">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>团队报名管理</title>
+</head>
+<body>
+<div th:replace="common/competition-common::mall-header"></div>
+<div th:replace="common/competition-common::competition-sidebar"></div>
+
+<div class="com-body">
+    <div class="com-title">团队报名管理 - <span th:text="${matchDTO.matchName}">比赛名称</span></div>
+
+    <div class="alert alert-success" th:if="${successMessage}" th:text="${successMessage}"></div>
+    <div class="alert alert-danger" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+    <div class="card">
+        <div class="card-header">
+            <h4>指导团队报名情况</h4>
+        </div>
+        <div class="card-body">
+            <div th:if="${registrations.isEmpty()}">
+                <p>暂无团队报名信息</p>
+            </div>
+            <div th:if="${!registrations.isEmpty()}">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>团队名称</th>
+                            <th>队长</th>
+                            <th>报名时间</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="reg : ${registrations}">
+                            <td th:text="${reg.teamName}">团队名称</td>
+                            <td th:text="${reg.leaderName}">队长姓名</td>
+                            <td th:text="${#temporals.format(reg.registrationTime, 'yyyy-MM-dd HH:mm:ss')}">报名时间</td>
+                            <td>
+                                <span class="badge bg-success" th:if="${reg.status == 'ACTIVE'}">有效</span>
+                                <span class="badge bg-danger" th:if="${reg.status == 'CANCELED'}">已撤销</span>
+                            </td>
+                            <td>
+                                <form th:if="${reg.status == 'ACTIVE'}"
+                                      th:action="@{/teacher/cancel-registration}"
+                                      method="post"
+                                      onsubmit="return confirm('确定要撤销此团队的报名吗？');">
+                                    <input type="hidden" name="teamId" th:value="${reg.teamId}">
+                                    <input type="hidden" name="matchId" th:value="${reg.matchId}">
+                                    <button type="submit" class="btn btn-sm btn-danger">撤销报名</button>
+                                </form>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <button class="btn btn-secondary" onclick="history.back()">返回</button>
+    </div>
+</div>
+
+<div th:replace="common/competition-common::mall-footer"></div>
+</body>
+</html>

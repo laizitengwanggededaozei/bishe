@@ -11,11 +11,14 @@ import neu.competition.mapper.UserMapper;
 import neu.competition.service.FileService;
 import neu.competition.service.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class TeamServiceImpl implements TeamService {
@@ -34,6 +37,8 @@ public class TeamServiceImpl implements TeamService {
 
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @Override
     public List<Team> getEligibleTeams(String userId, int matchId) {
@@ -47,10 +52,9 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public void registerTeamForMatch(int teamId, int matchId) {
-        if (!isTeamRegisteredForCompetition(teamId, matchId)) {
-            registerTeamForCompetition(teamId, matchId);
-        }
+
     }
+
 
     @Override
     public List<TeamMember> getTeamMembersByTeamId(int teamId) {
@@ -87,18 +91,6 @@ public class TeamServiceImpl implements TeamService {
         return teamMemberMapper.getTeamLeaderByTeamId(teamId);
     }
 
-    @Override
-    public void registerTeamForCompetition(int teamId, int matchId) {
-        boolean alreadyRegistered = participationRecordMapper.existsByTeamIdAndMatchId(teamId, matchId);
-        if (!alreadyRegistered) {
-            ParticipationRecord record = new ParticipationRecord();
-            record.setTeamId(teamId);
-            record.setMatchId(matchId);
-            participationRecordMapper.insert(record);
-        } else {
-            throw new IllegalStateException("该团队已经报名参加了该比赛");
-        }
-    }
 
     @Override
     public List<Team> getEligibleTeamsForUser(String userId, int matchId) {
@@ -298,5 +290,81 @@ public class TeamServiceImpl implements TeamService {
             team.setMembers(members);
         }
         return teams;
+    }
+    @Override
+    public Team getRegisteredTeamForMatch(String userId, int matchId) {
+        return teamMapper.getRegisteredTeamForMatch(userId, matchId);
+    }
+
+    @Override
+    public boolean isTeamLeader(String userId, int teamId) {
+        TeamMember leader = teamMemberMapper.getTeamLeaderByTeamId(teamId);
+        return leader != null && leader.getUid().equals(userId);
+    }
+
+    @Override
+    public boolean isTeamTeacher(String userId, int teamId) {
+        List<TeamMember> teachers = teamMemberMapper.getTeacherMembersByTeamId(teamId);
+        return teachers.stream().anyMatch(teacher -> teacher.getUid().equals(userId));
+    }
+
+    @Override
+    @Transactional
+    public void cancelTeamRegistration(int teamId, int matchId, String cancelUserId) {
+        // 查询报名记录
+        ParticipationRecord record = participationRecordMapper.selectOneByTeamAndMatch(teamId, matchId);
+        if (record == null) {
+            throw new IllegalArgumentException("未找到报名记录");
+        }
+
+        if ("CANCELED".equals(record.getStatus())) {
+            throw new IllegalArgumentException("该报名已被撤销");
+        }
+
+        // 更新报名状态
+        record.setStatus("CANCELED");
+        record.setCanceledBy(cancelUserId);
+        record.setCancelTime(LocalDateTime.now());
+        participationRecordMapper.updateById(record);
+
+        // 删除用户比赛会话记录
+        jdbcTemplate.update(
+                "DELETE FROM user_competition_session WHERE match_id = ? AND team_id = ?",
+                matchId, teamId
+        );
+    }
+
+    @Override
+    public List<Map<String, Object>> getTeamRegistrationsForTeacher(String teacherId, int matchId) {
+        return teamMapper.getTeamRegistrationsForTeacher(teacherId, matchId);
+    }
+    @Override
+    @Transactional
+    public void registerTeamForCompetition(int teamId, int matchId) {
+        // 检查是否已经报名
+        boolean alreadyRegistered = participationRecordMapper.existsByTeamIdAndMatchId(teamId, matchId);
+        if (alreadyRegistered) {
+            // 查询报名状态
+            ParticipationRecord record = participationRecordMapper.selectOneByTeamAndMatch(teamId, matchId);
+            if (record != null && "ACTIVE".equals(record.getStatus())) {
+                throw new IllegalStateException("该团队已经报名参加了该比赛");
+            } else if (record != null && "CANCELED".equals(record.getStatus())) {
+                // 如果之前报名被取消，则重新激活
+                record.setStatus("ACTIVE");
+                record.setCanceledBy(null);
+                record.setCancelTime(null);
+                record.setRegistrationTime(LocalDateTime.now());
+                participationRecordMapper.updateById(record);
+                return;
+            }
+        }
+
+        // 创建新的报名记录
+        ParticipationRecord record = new ParticipationRecord();
+        record.setTeamId(teamId);
+        record.setMatchId(matchId);
+        record.setStatus("ACTIVE");
+        record.setRegistrationTime(LocalDateTime.now());
+        participationRecordMapper.insert(record);
     }
 }

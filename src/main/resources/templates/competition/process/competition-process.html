@@ -11,18 +11,23 @@
 <div th:replace="common/competition-common::mall-header"></div>
 <div th:replace="common/competition-common::competition-sidebar"></div>
 
-<<div class="com-body">
+<div class="com-body">
     <div class="com-title">参与比赛 - <span th:text="${matchDTO.matchName}">比赛名称</span></div>
 
     <!-- 显示成功/错误消息 -->
     <div class="alert alert-success" th:if="${successMessage != null}" th:text="${successMessage}"></div>
     <div class="alert alert-danger" th:if="${errorMessage != null}" th:text="${errorMessage}"></div>
 
+    <!-- 学生用户显示当前参赛团队 -->
+    <div class="alert alert-info" th:if="${session.loggedUser.id.startsWith('S') && selectedTeam != null}">
+        <strong>当前参赛团队：</strong>
+        <span th:text="${selectedTeam.tname}">团队名称</span>
+    </div>
+
     <div class="alert alert-info">
         <strong>比赛时间：</strong>
         <span th:text="${matchDTO.matchStartTime} + ' 至 ' + ${matchDTO.matchEndTime}"></span>
     </div>
-
     <!-- 团队选择表单（仅学生可见） -->
     <div class="card mb-4" th:if="${session.loggedUser.id.startsWith('S')}">
         <div class="card-header">
@@ -63,9 +68,7 @@
     </div>
 
     <!-- 题目列表（学生已选择团队时、教师和组织者时可见） -->
-    <div class="card mt-4" th:if="(${session.loggedUser.id.startsWith('S') && selectedTeam != null && problems.size() > 0})
-                                 || ${session.loggedUser.id.startsWith('T')}
-                                 || ${session.loggedUser.id.startsWith('B')}">
+    <div class="card mt-4" th:if="${canViewProblems}">
         <div class="card-header">
             <h4>题目列表</h4>
         </div>

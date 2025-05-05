@@ -67,8 +67,8 @@
         </div>
         <!-- 修改文件：src/main/resources/templates/competition/match.html -->
         <!-- 将按钮部分修改为: -->
+        <!-- 在match.html中修改下方的按钮部分 -->
         <div class="card-footer">
-          <!-- 获取当前用户角色 -->
           <div th:with="userRole=${session.loggedUser != null ? session.loggedUser.id.substring(0, 1) : ''}">
             <!-- 组织者操作按钮 -->
             <div th:if="${userRole == 'B'}">
@@ -80,18 +80,56 @@
             <!-- 教师操作按钮 -->
             <div th:if="${userRole == 'T'}">
               <button class="card-button yellow" th:unless="${matchDTO.publish == 0}" th:onclick="'window.location.href=\'/competition-process/match/' + ${matchDTO.matchId} + '\''">评审比赛</button>
+              <button class="card-button red" th:unless="${matchDTO.publish == 0}" th:onclick="'window.location.href=\'/teacher/team-registrations?matchId=' + ${matchDTO.matchId} + '\''">管理报名</button>
             </div>
+
             <!-- 学生操作按钮 -->
             <div th:if="${userRole == 'S'}">
-              <!-- 未报名时显示报名按钮 -->
-              <button class="card-button blue" th:if="${!hasParticipatingTeam}" th:unless="${matchDTO.publish == 0}" th:onclick="'window.location.href=\'/team/register-competition?matchId=' + ${matchDTO.matchId} + '\''">报名</button>
-              <!-- 已报名时显示参与比赛按钮 -->
-              <button class="card-button green" th:if="${hasParticipatingTeam}" th:unless="${matchDTO.publish == 0}" th:onclick="'window.location.href=\'/competition-process/match/' + ${matchDTO.matchId} + '\''">参与比赛</button>
+              <!-- 根据是否已有报名团队显示不同按钮 -->
+              <div th:if="${registeredTeam != null}">
+                <p>已报名团队: <span th:text="${registeredTeam.tname}"></span></p>
+                <button class="card-button green" th:onclick="'window.location.href=\'/competition-process/match/' + ${matchDTO.matchId} + '\''">参与比赛</button>
+              </div>
+              <div th:if="${registeredTeam == null && eligibleTeams != null && !eligibleTeams.isEmpty()}">
+                <button class="card-button blue" data-bs-toggle="modal" data-bs-target="#teamSelectionModal">报名参赛</button>
+              </div>
+              <div th:if="${registeredTeam == null && (eligibleTeams == null || eligibleTeams.isEmpty())}">
+                <p>您没有可用于报名的团队</p>
+                <button class="card-button blue" th:onclick="'window.location.href=\'/team/create\''">创建团队</button>
+              </div>
             </div>
 
             <!-- 未登录用户 -->
             <div th:if="${userRole == ''}">
               <button class="card-button blue" th:onclick="'window.location.href=\'/login\''" th:unless="${matchDTO.publish == 0}">登录后报名</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 添加团队选择模态框 -->
+        <div class="modal fade" id="teamSelectionModal" tabindex="-1" aria-labelledby="teamSelectionModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="teamSelectionModalLabel">选择参赛团队</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <form th:action="@{/team/register-competition}" method="post" id="teamRegistrationForm">
+                  <input type="hidden" name="matchId" th:value="${matchDTO.matchId}">
+                  <div class="form-group">
+                    <label for="teamId">选择团队:</label>
+                    <select class="form-control" id="teamId" name="teamId" required>
+                      <option value="">-- 请选择团队 --</option>
+                      <option th:each="team : ${eligibleTeams}" th:value="${team.id}" th:text="${team.tname}">团队名称</option>
+                    </select>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">确认报名</button>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
         </div>

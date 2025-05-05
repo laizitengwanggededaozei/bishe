@@ -17,8 +17,28 @@ import java.time.LocalDateTime;
 @Accessors(chain = true)
 @TableName("participation_record")
 public class ParticipationRecord implements Serializable {
-    // 移除@TableId注解
+    private static final long serialVersionUID = 1L;
+
     private int teamId;
     private int matchId;
+    private String status = "ACTIVE"; // 报名状态：ACTIVE-有效, CANCELED-已撤销
     private LocalDateTime registrationTime;
+    private String canceledBy; // 撤销人ID
+    private LocalDateTime cancelTime; // 撤销时间
+
+    public ParticipationRecord(int teamId, int matchId, LocalDateTime registrationTime) {
+        this.teamId = teamId;
+        this.matchId = matchId;
+        this.registrationTime = registrationTime;
+    }
+
+    public ParticipationRecord(int teamId, int matchId, String status, LocalDateTime registrationTime,
+                               String canceledBy, LocalDateTime cancelTime) {
+        this.teamId = teamId;
+        this.matchId = matchId;
+        this.status = status;
+        this.registrationTime = registrationTime;
+        this.canceledBy = canceledBy;
+        this.cancelTime = cancelTime;
+    }
 }

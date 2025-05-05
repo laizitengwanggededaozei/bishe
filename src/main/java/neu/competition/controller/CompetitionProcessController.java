@@ -80,9 +80,44 @@ public class CompetitionProcessController {
             return "redirect:/login";
         }
 
+        // 获取比赛信息
+        MatchesDTO matchDTO = competitionService.selectMatch(matchId);
+        model.addAttribute("matchDTO", matchDTO);
+
+        // 获取用户角色
+        String userRole = user.getId().substring(0, 1);
+
+        // 如果是学生角色，处理团队相关信息
+        Integer selectedTeamId = null;
+        if ("S".equals(userRole)) {
+            // 获取该用户为该比赛选择的团队
+            selectedTeamId = sessionService.getUserSelectedTeam(user.getId(), matchId);
+
+            // 获取可选择的团队列表
+            List<Team> teams = teamService.getEligibleTeamsForUser(user.getId(), matchId);
+            model.addAttribute("teams", teams);
+
+            // 如果用户已经选择了团队，获取团队信息
+            if (selectedTeamId != null) {
+                Team selectedTeam = teamService.getTeamById(selectedTeamId);
+                model.addAttribute("selectedTeamId", selectedTeamId);
+                model.addAttribute("selectedTeam", selectedTeam);
+            }
+        }
+
+        // 获取比赛的题目列表
+        List<ProblemDTO> problems = competitionProcessService.getProblems(matchId);
+        model.addAttribute("problems", problems);
+        // 确定是否显示题目列表
+        boolean canViewProblems = false;
+        if ("S".equals(userRole) && selectedTeamId != null && problems != null && !problems.isEmpty()) {
+            canViewProblems = true;
+        } else if ("T".equals(userRole) || "B".equals(userRole)) {
+            canViewProblems = true;
+        }
+        model.addAttribute("canViewProblems", canViewProblems);
         return "competition/process/competition-process";
     }
-
     // 修改题目详情控制器方法
     @GetMapping("/problem/{problemId}")
     public String problemDetail(@PathVariable("problemId") Integer problemId,

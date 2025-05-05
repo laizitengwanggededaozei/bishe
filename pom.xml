@@ -66,6 +66,10 @@
             <version>1.5.3.Final</version>
         </dependency>
         <!-- 常用开发辅助库 结束 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
         <!-- 数据库 开始 -->
         <dependency>
             <groupId>org.mybatis.spring.boot</groupId>

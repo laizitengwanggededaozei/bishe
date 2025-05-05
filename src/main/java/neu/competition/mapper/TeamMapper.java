@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface TeamMapper extends BaseMapper<Team> {
@@ -45,4 +46,20 @@ public interface TeamMapper extends BaseMapper<Team> {
             "FROM team t " +
             "WHERE t.id IN (SELECT team_id FROM team_member WHERE uid = #{teacherId} AND role = '教师')")
     List<Team> getTeamsGuidedByTeacher(@Param("teacherId") String teacherId);
+    @Select("SELECT t.* FROM team t " +
+            "JOIN participation_record pr ON t.id = pr.team_id " +
+            "JOIN team_member tm ON t.id = tm.team_id " +
+            "WHERE tm.uid = #{userId} AND pr.match_id = #{matchId} " +
+            "AND pr.status = 'ACTIVE' LIMIT 1")
+    Team getRegisteredTeamForMatch(@Param("userId") String userId, @Param("matchId") int matchId);
+
+    @Select("SELECT t.id as teamId, t.tname as teamName, tm.uname as leaderName, " +
+            "pr.match_id as matchId, pr.registration_time as registrationTime, " +
+            "pr.status, pr.canceled_by as canceledBy, pr.cancel_time as cancelTime " +
+            "FROM participation_record pr " +
+            "JOIN team t ON pr.team_id = t.id " +
+            "JOIN team_member tm ON t.id = tm.team_id AND tm.role = '队长' " +
+            "WHERE t.id IN (SELECT team_id FROM team_member WHERE uid = #{teacherId} AND role = '教师') " +
+            "AND pr.match_id = #{matchId}")
+    List<Map<String, Object>> getTeamRegistrationsForTeacher(@Param("teacherId") String teacherId, @Param("matchId") int matchId);
 }

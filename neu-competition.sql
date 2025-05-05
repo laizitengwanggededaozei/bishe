@@ -11,7 +11,7 @@
  Target Server Version : 80034
  File Encoding         : 65001
 
- Date: 05/05/2025 08:23:29
+ Date: 05/05/2025 12:32:15
 */
 
 SET NAMES utf8mb4;
@@ -131,6 +131,10 @@ DROP TABLE IF EXISTS `participation_record`;
 CREATE TABLE `participation_record`  (
   `team_id` int NOT NULL COMMENT '团队ID',
   `match_id` int NOT NULL COMMENT '比赛ID',
+  `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'ACTIVE' COMMENT '报名状态：ACTIVE-有效, CANCELED-已撤销',
+  `registration_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '报名时间',
+  `canceled_by` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '撤销人ID',
+  `cancel_time` datetime NULL DEFAULT NULL COMMENT '撤销时间',
   PRIMARY KEY (`team_id`, `match_id`) USING BTREE,
   INDEX `team_id_idx`(`team_id`) USING BTREE,
   INDEX `match_id_idx`(`match_id`) USING BTREE,
@@ -141,12 +145,6 @@ CREATE TABLE `participation_record`  (
 -- ----------------------------
 -- Records of participation_record
 -- ----------------------------
-INSERT INTO `participation_record` VALUES (1, 4);
-INSERT INTO `participation_record` VALUES (1, 5);
-INSERT INTO `participation_record` VALUES (2, 4);
-INSERT INTO `participation_record` VALUES (2, 6);
-INSERT INTO `participation_record` VALUES (3, 4);
-INSERT INTO `participation_record` VALUES (3, 6);
 
 -- ----------------------------
 -- Table structure for problem
@@ -238,6 +236,7 @@ CREATE TABLE `team`  (
 INSERT INTO `team` VALUES (1, '教改一队', '/image/team/1.png');
 INSERT INTO `team` VALUES (2, '大角牛向前冲', '/image/team/1.png');
 INSERT INTO `team` VALUES (3, '教改2队', '/image/team/5.png');
+INSERT INTO `team` VALUES (4, '教改三队', '/image/team/3.png');
 
 -- ----------------------------
 -- Table structure for team_member
@@ -262,10 +261,13 @@ CREATE TABLE `team_member`  (
 INSERT INTO `team_member` VALUES ('S20150322', 2, '迟尚熙', '队员');
 INSERT INTO `team_member` VALUES ('S21008020326S', 3, '韩佳樾', '队员');
 INSERT INTO `team_member` VALUES ('S21008020411', 2, '迟宽鹏', '队长');
+INSERT INTO `team_member` VALUES ('S21008020411', 4, '迟宽鹏', '队员');
 INSERT INTO `team_member` VALUES ('S21008020412', 1, '王睿', '队员');
 INSERT INTO `team_member` VALUES ('S21008021019', 1, '刘洋', '队长');
 INSERT INTO `team_member` VALUES ('S21008021019', 3, '刘洋', '队长');
+INSERT INTO `team_member` VALUES ('S21008021019', 4, '刘洋', '队长');
 INSERT INTO `team_member` VALUES ('Tliutong', 2, '刘彤', '教师');
+INSERT INTO `team_member` VALUES ('Tliutong', 4, '刘彤', '教师');
 INSERT INTO `team_member` VALUES ('Tshengyu', 1, '盛雨', '教师');
 INSERT INTO `team_member` VALUES ('Tshengyu', 3, '盛雨', '教师');
 

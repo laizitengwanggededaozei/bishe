@@ -112,20 +112,28 @@ public class CompetitionController {
 
 	@RequestMapping("/match")
 	public String matchView(Model model, int id, HttpSession session) {
+		// 获取比赛信息
 		MatchesDTO matchesDTO = competitionService.selectMatch(id);
 		model.addAttribute("matchDTO", matchesDTO);
 
-		// 添加判断用户是否已有参赛团队的逻辑
 		User user = (User) session.getAttribute("loggedUser");
-		boolean hasParticipatingTeam = false;
+		if (user != null) {
+			String userRole = user.getId().substring(0, 1);
 
-		if (user != null && user.getId().startsWith("S")) {
-			// 只对学生用户进行检查
-			List<Team> teams = teamService.getParticipatingTeamsForUser(user.getId(), id);
-			hasParticipatingTeam = teams != null && !teams.isEmpty();
+			// 对于学生用户，获取报名信息
+			if ("S".equals(userRole)) {
+				// 查询该学生在该比赛已报名的团队
+				Team registeredTeam = teamService.getRegisteredTeamForMatch(user.getId(), id);
+				model.addAttribute("registeredTeam", registeredTeam);
+
+				// 如果没有报名，则获取可报名的团队列表
+				if (registeredTeam == null) {
+					List<Team> eligibleTeams = teamService.getEligibleTeamsForUser(user.getId(), id);
+					model.addAttribute("eligibleTeams", eligibleTeams);
+				}
+			}
 		}
 
-		model.addAttribute("hasParticipatingTeam", hasParticipatingTeam);
 		return "competition/match";
 	}
 

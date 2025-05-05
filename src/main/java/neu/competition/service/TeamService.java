@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 public interface TeamService {
     @Transactional
@@ -46,4 +47,17 @@ public interface TeamService {
     void changeTeamLeader(int teamId, String newLeaderId);
     boolean hasParticipatingTeam(String userId, int matchId);
     List<Team> getTeamsGuidedByTeacher(String teacherId);
+    // 获取用户在指定比赛已报名的团队
+    Team getRegisteredTeamForMatch(String userId, int matchId);
+    // 检查用户是否是团队队长
+    boolean isTeamLeader(String userId, int teamId);
+
+    // 检查用户是否是团队教师
+    boolean isTeamTeacher(String userId, int teamId);
+
+    // 撤销团队报名
+    void cancelTeamRegistration(int teamId, int matchId, String cancelUserId);
+
+    // 获取教师指导的团队在指定比赛的报名情况
+    List<Map<String, Object>> getTeamRegistrationsForTeacher(String teacherId, int matchId);
 }
