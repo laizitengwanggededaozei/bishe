@@ -9,11 +9,13 @@ import neu.competition.entity.User;
 import neu.competition.service.CompetitionProcessService;
 import neu.competition.service.CompetitionService;
 import neu.competition.service.TeamService;
+import neu.competition.service.UserCompetitionSessionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
 import java.io.File;
@@ -26,37 +28,97 @@ import java.util.Map;
 @Controller
 @RequestMapping("/competition-process")
 public class CompetitionProcessController {
-    
+
     @Autowired
     private CompetitionProcessService competitionProcessService;
-    
+
     @Autowired
     private CompetitionService competitionService;
-    
+
     @Autowired
     private TeamService teamService;
-    
 
-    // 题目详情页面
-    @GetMapping("/problem/{problemId}")
-    public String problemDetail(@PathVariable("problemId") Integer problemId, Model model, HttpSession session) {
-        // 检查用户是否登录
+    @Autowired
+    private UserCompetitionSessionService sessionService;
+
+    @PostMapping("/set-team")
+    public String setTeam(@RequestParam("teamId") Integer teamId,
+                          @RequestParam("matchId") Integer matchId,
+                          HttpSession session, RedirectAttributes redirectAttributes) {
         User user = (User) session.getAttribute("loggedUser");
         if (user == null) {
             return "redirect:/login";
         }
-        
+
+        // 验证团队存在
+        Team team = teamService.getTeamById(teamId);
+        if (team == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "团队不存在");
+            return "redirect:/competition-process/match/" + matchId;
+        }
+
+        // 验证团队已报名此比赛
+        if (!teamService.isTeamRegisteredForCompetition(teamId, matchId)) {
+            redirectAttributes.addFlashAttribute("errorMessage", "该团队未报名此比赛");
+            return "redirect:/competition-process/match/" + matchId;
+        }
+
+        // 保存用户的团队选择到数据库
+        sessionService.saveUserCompetitionSession(user.getId(), matchId, teamId);
+        redirectAttributes.addFlashAttribute("successMessage", "团队设置成功: " + team.getTname());
+
+        return "redirect:/competition-process/match/" + matchId;
+    }
+
+    // 修改比赛流程页面的控制器方法
+    @GetMapping("/match/{matchId}")
+    public String competitionProcess(@PathVariable("matchId") Integer matchId,
+                                     Model model,
+                                     HttpSession session) {
+        User user = (User) session.getAttribute("loggedUser");
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        return "competition/process/competition-process";
+    }
+
+    // 修改题目详情控制器方法
+    @GetMapping("/problem/{problemId}")
+    public String problemDetail(@PathVariable("problemId") Integer problemId,
+                                Model model,
+                                HttpSession session) {
+        User user = (User) session.getAttribute("loggedUser");
+        if (user == null) {
+            return "redirect:/login";
+        }
+
         // 获取题目详情
         ProblemDTO problem = competitionProcessService.getProblemDetail(problemId);
         model.addAttribute("problem", problem);
-        
-        // 获取用户参赛团队
-        List<Team> teams = teamService.getEligibleTeamsForUser(user.getId(), problem.getMatchId());
-        model.addAttribute("teams", teams);
-        
+
+        String userRole = user.getId().substring(0, 1);
+
+        // 如果是学生，需要检查是否已选择团队
+        if ("S".equals(userRole)) {
+            // 获取用户为该比赛选择的团队
+            Integer selectedTeamId = sessionService.getUserSelectedTeam(user.getId(), problem.getMatchId());
+
+            // 如果用户没有选择团队，重定向到比赛页面
+            if (selectedTeamId == null) {
+                model.addAttribute("errorMessage", "请先选择参赛团队");
+                return "redirect:/competition-process/match/" + problem.getMatchId();
+            }
+
+            // 获取团队详情并传递到视图
+            Team selectedTeam = teamService.getTeamById(selectedTeamId);
+            model.addAttribute("selectedTeamId", selectedTeamId);
+            model.addAttribute("selectedTeam", selectedTeam);
+        }
+
         return "competition/process/problem-detail";
     }
-    
+
     // 提交作品
     @PostMapping("/submit")
     public String submitSolution(@RequestParam("teamId") Integer teamId,
@@ -110,17 +172,17 @@ public class CompetitionProcessController {
         if (user == null) {
             return "redirect:/login";
         }
-        
+
         // 获取团队提交列表
         List<SubmissionDTO> submissions = competitionProcessService.getTeamSubmissions(teamId, matchId);
         model.addAttribute("submissions", submissions);
-        
+
         // 获取比赛信息
         model.addAttribute("matchDTO", competitionService.selectMatch(matchId));
-        
+
         // 获取团队信息
         model.addAttribute("team", teamService.getTeamById(teamId));
-        
+
         return "competition/process/team-submissions";
     }
 
@@ -200,7 +262,7 @@ public class CompetitionProcessController {
             return "redirect:/competition-process/match/" + matchId + "?error=generate";
         }
     }
-    
+
     // 查看比赛结果
     @GetMapping("/results")
     public String competitionResults(@RequestParam("matchId") Integer matchId, Model model, HttpSession session) {
@@ -209,38 +271,38 @@ public class CompetitionProcessController {
         if (user == null) {
             return "redirect:/login";
         }
-        
+
         // 获取比赛结果
         List<ResultDTO> results = competitionProcessService.getCompetitionResults(matchId);
         model.addAttribute("results", results);
-        
+
         // 获取比赛信息
         model.addAttribute("matchDTO", competitionService.selectMatch(matchId));
-        
+
         return "competition/process/competition-results";
     }
-    
+
     // 查看团队结果
     @GetMapping("/team-result")
     public String teamResult(@RequestParam("teamId") Integer teamId,
-                           @RequestParam("matchId") Integer matchId,
-                           Model model, HttpSession session) {
+                             @RequestParam("matchId") Integer matchId,
+                             Model model, HttpSession session) {
         // 检查用户是否登录
         User user = (User) session.getAttribute("loggedUser");
         if (user == null) {
             return "redirect:/login";
         }
-        
+
         // 获取团队比赛结果
         ResultDTO result = competitionProcessService.getTeamResult(teamId, matchId);
         model.addAttribute("result", result);
-        
+
         // 获取比赛信息
         model.addAttribute("matchDTO", competitionService.selectMatch(matchId));
-        
+
         // 获取团队信息
         model.addAttribute("team", teamService.getTeamById(teamId));
-        
+
         return "competition/process/team-result";
     }
 
@@ -272,7 +334,7 @@ public class CompetitionProcessController {
             return null;
         }
     }
-    
+
     // 辅助方法：获取提交详情
     private SubmissionDTO getSubmissionDetail(Integer submissionId) {
         // 简化版，实际应引用SubmissionMapper
@@ -280,6 +342,7 @@ public class CompetitionProcessController {
         // 这里返回一个假的对象以保持代码连贯性
         return new SubmissionDTO();
     }
+
     @GetMapping("/evaluations")
     public String showEvaluations(@RequestParam("matchId") Integer matchId, Model model, HttpSession session) {
         User user = (User) session.getAttribute("loggedUser");
@@ -299,6 +362,7 @@ public class CompetitionProcessController {
 
         return "competition/process/evaluations";
     }
+
     @GetMapping("/all-evaluations")
     public String showAllEvaluations(Model model, HttpSession session) {
         // 检查用户是否登录且是教师
@@ -313,76 +377,7 @@ public class CompetitionProcessController {
 
         return "competition/process/all-evaluations";
     }
-    // 在CompetitionProcessController中添加
-    @PostMapping("/select-team")
-    @ResponseBody
-    public Map<String, Object> selectTeam(@RequestParam("teamId") Integer teamId,
-                                          @RequestParam("matchId") Integer matchId,
-                                          HttpSession session) {
-        Map<String, Object> response = new HashMap<>();
 
-        User user = (User) session.getAttribute("loggedUser");
-        if (user == null) {
-            response.put("success", false);
-            response.put("message", "用户未登录");
-            return response;
-        }
 
-        // 验证团队是否存在且属于当前用户
-        Team team = teamService.getTeamById(teamId);
-        if (team == null) {
-            response.put("success", false);
-            response.put("message", "团队不存在");
-            return response;
-        }
 
-        // 验证团队是否已报名该比赛
-        boolean isRegistered = teamService.isTeamRegisteredForCompetition(teamId, matchId);
-        if (!isRegistered) {
-            response.put("success", false);
-            response.put("message", "该团队未报名此比赛");
-            return response;
-        }
-
-        // 存储选择的团队到会话
-        Map<String, Integer> userMatchTeams = (Map<String, Integer>) session.getAttribute("userMatchTeams");
-        if (userMatchTeams == null) {
-            userMatchTeams = new HashMap<>();
-        }
-        String key = "match_" + matchId;
-        userMatchTeams.put(key, teamId);
-        session.setAttribute("userMatchTeams", userMatchTeams);
-
-        // 返回成功信息和团队名称
-        response.put("success", true);
-        response.put("teamName", team.getTname());
-        return response;
-    }
-
-    // 修改competitionProcess方法，支持恢复之前选择的团队
-    @GetMapping("/match/{matchId}")
-    public String competitionProcess(@PathVariable("matchId") Integer matchId, Model model, HttpSession session) {
-        // 检查用户是否登录...
-
-        User user = (User) session.getAttribute("loggedUser");
-        if (user == null) {
-            return "redirect:/login";
-        }
-        // 获取比赛信息并检查是否存在
-        MatchesDTO matchDTO = competitionService.selectMatch(matchId);
-        if (matchDTO == null) {
-            // 比赛不存在，返回错误页面
-            return "redirect:/error?message=比赛不存在";
-        }
-        model.addAttribute("matchDTO", matchDTO);
-        // 获取用户已报名的参赛团队
-        List<Team> teams = teamService.getParticipatingTeamsForUser(user.getId(), matchId);
-        model.addAttribute("teams", teams);
-
-        // 获取比赛题目
-        List<ProblemDTO> problems = competitionProcessService.getProblems(matchId);
-        model.addAttribute("problems", problems);
-
-        return "competition/process/competition-process";
-    }
 }

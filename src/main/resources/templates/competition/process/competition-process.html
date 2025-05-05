@@ -11,49 +11,61 @@
 <div th:replace="common/competition-common::mall-header"></div>
 <div th:replace="common/competition-common::competition-sidebar"></div>
 
-<div class="com-body">
+<<div class="com-body">
     <div class="com-title">参与比赛 - <span th:text="${matchDTO.matchName}">比赛名称</span></div>
+
+    <!-- 显示成功/错误消息 -->
+    <div class="alert alert-success" th:if="${successMessage != null}" th:text="${successMessage}"></div>
+    <div class="alert alert-danger" th:if="${errorMessage != null}" th:text="${errorMessage}"></div>
 
     <div class="alert alert-info">
         <strong>比赛时间：</strong>
         <span th:text="${matchDTO.matchStartTime} + ' 至 ' + ${matchDTO.matchEndTime}"></span>
-        <div class="team-info mt-2 fw-bold"></div>
     </div>
 
-    <!-- 团队选择弹窗 -->
-    <div class="modal fade" id="teamSelectModal" tabindex="-1" aria-labelledby="teamSelectModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="teamSelectModalLabel">选择参赛团队</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div th:if="${teams.size() == 0}">
-                        <p>您目前没有符合条件的团队，请先 <a href="/team/create">创建团队</a> 并报名参赛。</p>
+    <!-- 团队选择表单（仅学生可见） -->
+    <div class="card mb-4" th:if="${session.loggedUser.id.startsWith('S')}">
+        <div class="card-header">
+            <h4>选择参赛团队</h4>
+        </div>
+        <div class="card-body">
+            <div th:if="${teams.size() == 0}">
+                <p>您目前没有符合条件的团队，请先 <a href="/team/create">创建团队</a> 并报名参赛。</p>
+            </div>
+            <div th:if="${teams.size() > 0}">
+                <form th:action="@{/competition-process/set-team}" method="post">
+                    <input type="hidden" name="matchId" th:value="${matchDTO.matchId}">
+
+                    <div class="form-group">
+                        <label for="teamId">选择参赛团队：</label>
+                        <select class="form-control" id="teamId" name="teamId" required>
+                            <option value="">-- 请选择团队 --</option>
+                            <option th:each="team : ${teams}"
+                                    th:value="${team.id}"
+                                    th:text="${team.tname}"
+                                    th:selected="${selectedTeamId != null && selectedTeamId == team.id}">
+                                团队名称
+                            </option>
+                        </select>
                     </div>
-                    <div th:if="${teams.size() > 0}">
-                        <form id="teamSelectForm">
-                            <div class="form-group">
-                                <label for="teamSelect">可用团队：</label>
-                                <select class="form-control" id="teamSelect">
-                                    <option value="">-- 请选择团队 --</option>
-                                    <option th:each="team : ${teams}" th:value="${team.id}" th:text="${team.tname}">团队名称</option>
-                                </select>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-primary" id="confirmTeamBtn" disabled>确认选择</button>
-                </div>
+
+                    <button type="submit" class="btn btn-primary">确认选择</button>
+                </form>
             </div>
         </div>
     </div>
 
-    <!-- 题目列表（初始隐藏） -->
-    <div class="card mt-4 problem-list-container d-none">
+    <!-- 当前选择的团队信息（仅学生且已选择团队时可见） -->
+    <div class="card mb-4" th:if="${session.loggedUser.id.startsWith('S') && selectedTeam != null}">
+        <div class="card-header bg-success text-white">
+            <h4>当前参赛团队： <span th:text="${selectedTeam.tname}"></span></h4>
+        </div>
+    </div>
+
+    <!-- 题目列表（学生已选择团队时、教师和组织者时可见） -->
+    <div class="card mt-4" th:if="(${session.loggedUser.id.startsWith('S') && selectedTeam != null && problems.size() > 0})
+                                 || ${session.loggedUser.id.startsWith('T')}
+                                 || ${session.loggedUser.id.startsWith('B')}">
         <div class="card-header">
             <h4>题目列表</h4>
         </div>
@@ -63,7 +75,9 @@
             </div>
             <div th:if="${problems.size() > 0}">
                 <div class="list-group">
-                    <a th:each="problem : ${problems}" th:href="'/competition-process/problem/' + ${problem.problemId}" class="list-group-item list-group-item-action">
+                    <a th:each="problem : ${problems}"
+                       th:href="'/competition-process/problem/' + ${problem.problemId}"
+                       class="list-group-item list-group-item-action">
                         <div class="d-flex w-100 justify-content-between">
                             <h5 class="mb-1" th:text="${problem.title}">题目标题</h5>
                             <small th:text="${problem.type}">类型</small>
@@ -83,25 +97,42 @@
         <div class="card-body">
             <div class="row" th:with="userRole=${session.loggedUser.id.substring(0, 1)}">
                 <!-- 学生操作 -->
-                <div class="col-md-4" th:if="${userRole == 'S'}">
-                    <button class="btn btn-primary btn-block" data-bs-toggle="modal" data-bs-target="#teamSelectModal">选择团队</button>
-                    <button class="btn btn-info btn-block view-submissions-btn mt-2" disabled>查看提交记录</button>
-                </div>
-                <div class="col-md-4">
-                    <button class="btn btn-success btn-block view-results-btn" onclick="location.href='/competition-process/results?matchId=' + [[${matchDTO.matchId}]]">查看比赛结果</button>
+                <div th:if="${userRole == 'S' && selectedTeam != null}" class="col-md-4">
+                    <a class="btn btn-info btn-block"
+                       th:href="'/competition-process/submissions?teamId=' + ${selectedTeam.id} + '&matchId=' + ${matchDTO.matchId}">
+                        查看提交记录
+                    </a>
                 </div>
 
                 <!-- 教师操作 -->
-                <div class="col-md-4" th:if="${userRole == 'T'}">
-                    <button class="btn btn-warning btn-block" onclick="location.href='/competition-process/evaluations?matchId=' + [[${matchDTO.matchId}]]">评审作品</button>
+                <div th:if="${userRole == 'T'}" class="col-md-4">
+                    <a class="btn btn-warning btn-block"
+                       th:href="'/competition-process/evaluations?matchId=' + ${matchDTO.matchId}">
+                        评审作品
+                    </a>
                 </div>
 
                 <!-- 组织者操作 -->
-                <div class="col-md-4" th:if="${userRole == 'B'}">
+                <div th:if="${userRole == 'B'}" class="col-md-4">
                     <form th:action="@{/competition-process/generate-results}" method="post">
                         <input type="hidden" name="matchId" th:value="${matchDTO.matchId}">
                         <button type="submit" class="btn btn-warning btn-block">生成比赛结果</button>
                     </form>
+                </div>
+
+                <!-- 所有角色都可见的操作 -->
+                <div class="col-md-4">
+                    <a class="btn btn-success btn-block"
+                       th:href="'/competition-process/results?matchId=' + ${matchDTO.matchId}">
+                        查看比赛结果
+                    </a>
+                </div>
+
+                <!-- 返回按钮 -->
+                <div class="col-md-4">
+                    <a class="btn btn-secondary btn-block" href="/index">
+                        返回首页
+                    </a>
                 </div>
             </div>
         </div>
@@ -110,121 +141,7 @@
 
 <div th:replace="common/competition-common::mall-footer"></div>
 
-<!-- 修改团队选择相关JavaScript部分 -->
-<script>
-    $(document).ready(function() {
-        // 获取服务器端的选择的团队信息
-        const userMatchTeams = [[${session.userMatchTeams}]];
-        const matchId = [[${matchDTO.matchId}]];
-        const key = "match_" + matchId;
 
-        if (userMatchTeams && userMatchTeams[key]) {
-            // 已有团队选择，自动加载
-            const teamId = userMatchTeams[key];
-            const selectedTeam = findTeamById(teamId);
-            if (selectedTeam) {
-                displaySelectedTeam(selectedTeam);
-            }
-        } else {
-            // 无选择，显示团队选择对话框
-            const teams = [[${teams}]];
-            if (teams && teams.length === 1) {
-                // 只有一个团队，自动选择
-                selectTeam(teams[0].id);
-            } else if (teams && teams.length > 1) {
-                $('#teamSelectModal').modal('show');
-            }
-        }
-
-        // 确认团队按钮点击事件
-        $('#confirmTeamBtn').click(function() {
-            const teamId = $('#teamSelect').val();
-            if (teamId) {
-                selectTeam(teamId);
-            }
-        });
-
-        // 团队选择变更事件
-        $('#teamSelect').change(function() {
-            const teamId = $(this).val();
-            $('#confirmTeamBtn').prop('disabled', !teamId);
-        });
-    });
-
-    // 查找团队
-    function findTeamById(teamId) {
-        const teams = [[${teams}]];
-        return teams.find(team => team.id == teamId);
-    }
-
-    // 显示已选择团队
-    function displaySelectedTeam(team) {
-        $('.team-info').text('当前参赛团队: ' + team.tname);
-        $('.problem-list-container').removeClass('d-none');
-        $('.view-submissions-btn').prop('disabled', false);
-        $('.view-submissions-btn').click(function() {
-            location.href = '/competition-process/submissions?teamId=' + team.id + '&matchId=' + [[${matchDTO.matchId}]];
-        });
-    }
-
-    // 选择团队函数，发送到后端
-    function selectTeam(teamId) {
-        console.log("选择团队: " + teamId); // 添加调试信息
-
-        // 添加CSRF令牌支持（如果使用Spring Security）
-        var token = $("meta[name='_csrf']").attr("content");
-        var header = $("meta[name='_csrf_header']").attr("content");
-
-        $.ajax({
-            url: '/competition-process/select-team',
-            type: 'POST',
-            data: {
-                teamId: teamId,
-                matchId: [[${matchDTO.matchId}]]
-            },
-            beforeSend: function(xhr) {
-                if (token && header) {
-                    xhr.setRequestHeader(header, token);
-                }
-            },
-            success: function(response) {
-                console.log("请求成功: ", response); // 添加调试信息
-                if (response.success) {
-                    // 更新UI
-                    $('.team-info').text('当前参赛团队: ' + response.teamName);
-                    $('.problem-list-container').removeClass('d-none');
-                    $('.view-submissions-btn').prop('disabled', false);
-                    $('.view-submissions-btn').off('click').on('click', function() { // 修复可能的事件重复绑定
-                        location.href = '/competition-process/submissions?teamId=' + teamId + '&matchId=' + [[${matchDTO.matchId}]];
-                    });
-
-                    // 关闭模态框
-                    $('#teamSelectModal').modal('hide');
-                } else {
-                    alert(response.message || '选择团队失败');
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error("请求错误: ", error, xhr.responseText); // 增强错误信息
-                alert('服务器错误，请稍后重试');
-            }
-        });
-    }
-
-    // 修改确认按钮事件绑定，使用直接绑定而非document ready中
-    $(document).ready(function() {
-        // 现有代码...
-
-        // 重新绑定确认按钮事件
-        $('#confirmTeamBtn').off('click').on('click', function() {
-            const teamId = $('#teamSelect').val();
-            console.log("确认按钮点击，选择团队ID: " + teamId);
-            if (teamId) {
-                selectTeam(teamId);
-            }
-        });
-    });
-</script>
 
 </body>
 </html>
