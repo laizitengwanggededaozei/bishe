@@ -24,48 +24,38 @@
         <span th:text="${selectedTeam.tname}">团队名称</span>
     </div>
 
-    <div class="alert alert-info">
-        <strong>比赛时间：</strong>
-        <span th:text="${matchDTO.matchStartTime} + ' 至 ' + ${matchDTO.matchEndTime}"></span>
-    </div>
-    <!-- 团队选择表单（仅学生可见） -->
-    <div class="card mb-4" th:if="${session.loggedUser.id.startsWith('S')}">
-        <div class="card-header">
-            <h4>选择参赛团队</h4>
-        </div>
-        <div class="card-body">
-            <div th:if="${teams.size() == 0}">
-                <p>您目前没有符合条件的团队，请先 <a href="/team/create">创建团队</a> 并报名参赛。</p>
-            </div>
-            <div th:if="${teams.size() > 0}">
-                <form th:action="@{/competition-process/set-team}" method="post">
-                    <input type="hidden" name="matchId" th:value="${matchDTO.matchId}">
+<!--    &lt;!&ndash; 团队选择表单（仅学生可见） &ndash;&gt;-->
+<!--    <div class="card mb-4" th:if="${session.loggedUser.id.startsWith('S')}">-->
+<!--        <div class="card-header">-->
+<!--            <h4>选择参赛团队</h4>-->
+<!--        </div>-->
+<!--        <div class="card-body">-->
+<!--            &lt;!&ndash; 添加null检查 &ndash;&gt;-->
+<!--            <div th:if="${teams == null || teams.size() == 0}">-->
+<!--                <p>您目前没有符合条件的团队，请先 <a href="/team/create">创建团队</a> 并报名参赛。</p>-->
+<!--            </div>-->
+<!--            <div th:if="${teams != null && teams.size() > 0}">-->
+<!--                <form th:action="@{/competition-process/set-team}" method="post">-->
+<!--                    <input type="hidden" name="matchId" th:value="${matchDTO.matchId}">-->
 
-                    <div class="form-group">
-                        <label for="teamId">选择参赛团队：</label>
-                        <select class="form-control" id="teamId" name="teamId" required>
-                            <option value="">-- 请选择团队 --</option>
-                            <option th:each="team : ${teams}"
-                                    th:value="${team.id}"
-                                    th:text="${team.tname}"
-                                    th:selected="${selectedTeamId != null && selectedTeamId == team.id}">
-                                团队名称
-                            </option>
-                        </select>
-                    </div>
+<!--                    <div class="form-group">-->
+<!--                        <label for="teamId">选择参赛团队：</label>-->
+<!--                        <select class="form-control" id="teamId" name="teamId" required>-->
+<!--                            <option value="">&#45;&#45; 请选择团队 &#45;&#45;</option>-->
+<!--                            <option th:each="team : ${teams}"-->
+<!--                                    th:value="${team.id}"-->
+<!--                                    th:text="${team.tname}"-->
+<!--                                    th:selected="${selectedTeamId != null && selectedTeamId == team.id}">-->
+<!--                                团队名称-->
+<!--                            </option>-->
+<!--                        </select>-->
+<!--                    </div>-->
 
-                    <button type="submit" class="btn btn-primary">确认选择</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- 当前选择的团队信息（仅学生且已选择团队时可见） -->
-    <div class="card mb-4" th:if="${session.loggedUser.id.startsWith('S') && selectedTeam != null}">
-        <div class="card-header bg-success text-white">
-            <h4>当前参赛团队： <span th:text="${selectedTeam.tname}"></span></h4>
-        </div>
-    </div>
+<!--                    <button type="submit" class="btn btn-primary">确认选择</button>-->
+<!--                </form>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
 
     <!-- 题目列表（学生已选择团队时、教师和组织者时可见） -->
     <div class="card mt-4" th:if="${canViewProblems}">
@@ -73,10 +63,11 @@
             <h4>题目列表</h4>
         </div>
         <div class="card-body">
-            <div th:if="${problems.size() == 0}">
+            <!-- 添加null检查 -->
+            <div th:if="${problems == null || problems.size() == 0}">
                 <p>当前比赛暂无题目</p>
             </div>
-            <div th:if="${problems.size() > 0}">
+            <div th:if="${problems != null && problems.size() > 0}">
                 <div class="list-group">
                     <a th:each="problem : ${problems}"
                        th:href="'/competition-process/problem/' + ${problem.problemId}"

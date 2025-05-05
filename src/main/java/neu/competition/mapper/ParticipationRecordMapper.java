@@ -24,4 +24,6 @@ public interface ParticipationRecordMapper extends BaseMapper<ParticipationRecor
     int updateStatusByTeamAndMatch(@Param("teamId") int teamId, @Param("matchId") int matchId,
                                    @Param("status") String status, @Param("canceledBy") String canceledBy,
                                    @Param("cancelTime") LocalDateTime cancelTime);
+    @Select("SELECT COUNT(*) > 0 FROM participation_record WHERE team_id = #{teamId} AND match_id = #{matchId} AND status = #{status}")
+    boolean existsByTeamIdAndMatchIdAndStatus(@Param("teamId") int teamId, @Param("matchId") int matchId, @Param("status") String status);
 }

@@ -35,6 +35,7 @@ public class RoleAuthInterceptor implements HandlerInterceptor {
         PATH_ROLE_MAP.put("/team/create", Arrays.asList("S"));
         PATH_ROLE_MAP.put("/team/register-competition", Arrays.asList("S"));
         PATH_ROLE_MAP.put("/competition-process/submit", Arrays.asList("S"));
+        PATH_ROLE_MAP.put("/submitRegistration", Arrays.asList("S"));
         
         // 共享路径
         PATH_ROLE_MAP.put("/competition-process/results", Arrays.asList("B", "T", "S"));

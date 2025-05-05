@@ -21,6 +21,7 @@ import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,27 +88,45 @@ public class CompetitionProcessController {
         // 获取用户角色
         String userRole = user.getId().substring(0, 1);
 
+        // 初始化集合（避免null）
+        model.addAttribute("teams", new ArrayList<>()); // 空集合而非null
+        model.addAttribute("problems", new ArrayList<>()); // 空集合而非null
+
         // 如果是学生角色，处理团队相关信息
         Integer selectedTeamId = null;
         if ("S".equals(userRole)) {
-            // 获取该用户为该比赛选择的团队
-            selectedTeamId = sessionService.getUserSelectedTeam(user.getId(), matchId);
+            // 1. 首先检查用户是否已报名团队
+            Team registeredTeam = teamService.getRegisteredTeamForMatch(user.getId(), matchId);
 
-            // 获取可选择的团队列表
-            List<Team> teams = teamService.getEligibleTeamsForUser(user.getId(), matchId);
-            model.addAttribute("teams", teams);
-
-            // 如果用户已经选择了团队，获取团队信息
-            if (selectedTeamId != null) {
-                Team selectedTeam = teamService.getTeamById(selectedTeamId);
+            // 2. 如果已有报名团队，自动选择该团队
+            if (registeredTeam != null) {
+                selectedTeamId = registeredTeam.getId();
                 model.addAttribute("selectedTeamId", selectedTeamId);
-                model.addAttribute("selectedTeam", selectedTeam);
+                model.addAttribute("selectedTeam", registeredTeam);
+
+                // 自动更新用户选择
+                sessionService.saveUserCompetitionSession(user.getId(), matchId, selectedTeamId);
+            } else {
+                // 3. 否则检查用户是否已通过会话选择了团队
+                selectedTeamId = sessionService.getUserSelectedTeam(user.getId(), matchId);
+
+                // 4. 如果从会话中有选择的团队，获取团队信息
+                if (selectedTeamId != null) {
+                    Team selectedTeam = teamService.getTeamById(selectedTeamId);
+                    model.addAttribute("selectedTeamId", selectedTeamId);
+                    model.addAttribute("selectedTeam", selectedTeam);
+                }
+
+                // 5. 获取可选择的团队列表（未报名的团队）
+                List<Team> teams = teamService.getEligibleTeamsForUser(user.getId(), matchId);
+                model.addAttribute("teams", teams != null ? teams : new ArrayList<>());
             }
         }
 
         // 获取比赛的题目列表
         List<ProblemDTO> problems = competitionProcessService.getProblems(matchId);
-        model.addAttribute("problems", problems);
+        model.addAttribute("problems", problems != null ? problems : new ArrayList<>());
+
         // 确定是否显示题目列表
         boolean canViewProblems = false;
         if ("S".equals(userRole) && selectedTeamId != null && problems != null && !problems.isEmpty()) {
@@ -116,6 +135,7 @@ public class CompetitionProcessController {
             canViewProblems = true;
         }
         model.addAttribute("canViewProblems", canViewProblems);
+
         return "competition/process/competition-process";
     }
     // 修改题目详情控制器方法

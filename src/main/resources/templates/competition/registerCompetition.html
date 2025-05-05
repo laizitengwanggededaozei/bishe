@@ -74,6 +74,7 @@
     </div>
     <!-- 修改表单的提交目标从 /submitRegistration 到 /team/submitRegistration -->
     <form th:if="${teams.size() > 0}" th:action="@{/team/submitRegistration}" method="post" onsubmit="return validateSelection()">
+        <input type="hidden" name="matchId" th:value="${matchId}" />
         <div class="com-cardList">
             <div th:each="team : ${teams}">
                 <div class="card">

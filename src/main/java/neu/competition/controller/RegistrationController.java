@@ -1,5 +1,6 @@
 package neu.competition.controller;
 
+import neu.competition.entity.Team;
 import neu.competition.entity.User;
 import neu.competition.service.TeamService;
 import org.slf4j.Logger;
@@ -20,28 +21,26 @@ public class RegistrationController {
     @Autowired
     private TeamService teamService;
 
-    @RequestMapping(value = "/team/submitRegistration", method = RequestMethod.POST)
+    @PostMapping("/team/submitRegistration")
     public String submitRegistration(HttpServletRequest request, HttpSession session, Model model,
-                                     @RequestParam(value = "teamId", required = false) Integer teamId) {
+                                     @RequestParam(value = "teamId", required = false) Integer teamId,
+                                     @RequestParam(value = "matchId", required = false) Integer matchId) {
         logger.info("=== 处理注册请求开始 ===");
         logger.info("请求方法: {}", request.getMethod());
         logger.info("请求URL: {}", request.getRequestURL().toString());
-        logger.info("请求URI: {}", request.getRequestURI());
-        logger.info("Content-Type: {}", request.getContentType());
         logger.info("teamId参数: {}", teamId);
-        logger.info("session中的matchId: {}", session.getAttribute("matchId"));
+        logger.info("matchId参数: {}", matchId);
 
-        // 记录所有请求参数
-        request.getParameterMap().forEach((key, value) ->
-                logger.info("参数 {}: {}", key, String.join(", ", value))
-        );
-
-        Integer matchId = (Integer) session.getAttribute("matchId");
+        // 如果请求参数中没有matchId，尝试从session获取
+        if (matchId == null) {
+            matchId = (Integer) session.getAttribute("matchId");
+            logger.info("从session中获取matchId: {}", matchId);
+        }
 
         if (teamId == null || matchId == null) {
             logger.error("缺少必要参数: teamId={}, matchId={}", teamId, matchId);
             model.addAttribute("errorMessage", "未选择团队或比赛ID");
-            return "redirect:/team/register-competition";
+            return "redirect:/team/register-competition?matchId=" + matchId;
         }
 
         User user = (User) session.getAttribute("loggedUser");
@@ -50,7 +49,13 @@ public class RegistrationController {
             return "redirect:/login";
         }
 
-        logger.info("用户ID: {}, 用户名: {}", user.getId(), user.getUname());
+        // 检查用户是否已经有团队报名本比赛
+        Team registeredTeam = teamService.getRegisteredTeamForMatch(user.getId(), matchId);
+        if (registeredTeam != null && registeredTeam.getId() != teamId) {
+            logger.warn("用户已有团队({})报名本比赛，不能重复报名", registeredTeam.getId());
+            model.addAttribute("errorMessage", "您已经有团队报名此比赛");
+            return "redirect:/competition-process/match/" + matchId;
+        }
 
         try {
             logger.info("正在注册团队: teamId={}, matchId={}", teamId, matchId);
@@ -58,11 +63,9 @@ public class RegistrationController {
             teamService.registerTeamForCompetition(teamId, matchId);
             logger.info("注册成功");
 
+            // 确保matchId在session中可用，以便重定向后使用
+            session.setAttribute("matchId", matchId);
             model.addAttribute("successMessage", "报名成功！");
-
-            // 清除会话中的teamId
-            session.removeAttribute("teamId");
-            logger.info("重定向到成功页面");
 
             return "redirect:/registrationSuccess";
         } catch (Exception e) {
@@ -74,11 +77,19 @@ public class RegistrationController {
         }
     }
 
-    // 添加一个简单的GET处理方法来测试是否能访问控制器
-    @GetMapping("/team/test-registration")
-    @ResponseBody
-    public String testRegistration() {
-        logger.info("测试注册控制器 - GET请求成功");
-        return "注册控制器测试成功 - GET方法可用";
+    @PostMapping("/team/register-competition")
+    public String processRegistration(@RequestParam(value = "teamId", required = false) Integer teamId,
+                                      @RequestParam(value = "matchId", required = false) Integer matchId,
+                                      HttpSession session, Model model,
+                                      HttpServletRequest request) {
+        // 记录参数
+        logger.info("处理POST /team/register-competition, teamId={}, matchId={}", teamId, matchId);
+
+        // 如果请求中没有matchId，尝试从session获取
+        if (matchId == null) {
+            matchId = (Integer) session.getAttribute("matchId");
+        }
+
+        return submitRegistration(request, session, model, teamId, matchId);
     }
 }

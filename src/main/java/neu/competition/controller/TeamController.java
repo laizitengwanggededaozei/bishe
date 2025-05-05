@@ -5,6 +5,8 @@ import neu.competition.entity.TeamMember;
 import neu.competition.entity.User;
 import neu.competition.service.TeamService;
 import neu.competition.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +26,7 @@ public class TeamController {
 
     @Autowired
     private TeamService teamService;
-
+    private static final Logger logger = LoggerFactory.getLogger(RegistrationController.class);
     @Autowired
     private UserService userService;
 
@@ -180,10 +182,7 @@ public class TeamController {
         return "competition/registerCompetition";
     }
 
-    @GetMapping("/register-competition")
-    public String showRegisterCompetitionPage(@RequestParam("matchId") int matchId, HttpSession session, Model model) {
-        return getString(matchId, session, model);
-    }
+
 
 
 
@@ -203,5 +202,32 @@ public class TeamController {
         List<Team> myTeams = teamService.getMyTeamsByUserId(userId);
         model.addAttribute("myTeams", myTeams);
         return "competition/teamManagement"; // 重用已有页面
+    }
+    @GetMapping("/register-competition")
+    public String showRegisterCompetitionPage(@RequestParam("matchId") int matchId,
+                                              HttpSession session, Model model) {
+        User user = (User) session.getAttribute("loggedUser");
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        // 检查用户是否已经有团队报名了该比赛
+        Team registeredTeam = teamService.getRegisteredTeamForMatch(user.getId(), matchId);
+        if (registeredTeam != null) {
+            // 已经有团队报名，直接跳转到比赛参与页面
+            logger.info("用户已有团队({})报名比赛({}),直接跳转到参与页面",
+                    registeredTeam.getId(), matchId);
+            return "redirect:/competition-process/match/" + matchId;
+        }
+
+        // 将matchId存储到会话中
+        session.setAttribute("matchId", matchId);
+        model.addAttribute("matchId", matchId);
+
+        // 获取未报名此比赛的团队
+        List<Team> teams = teamService.getEligibleTeamsForUser(user.getId(), matchId);
+        model.addAttribute("teams", teams);
+
+        return "competition/registerCompetition";
     }
 }

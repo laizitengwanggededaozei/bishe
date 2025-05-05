@@ -51,4 +51,9 @@ public interface TeamMemberMapper extends BaseMapper<TeamMember> {
     @Update("UPDATE team_member SET role = #{role}, uname = #{uname} WHERE uid = #{uid} AND team_id = #{teamId}")
     int updateByCompositeKey(@Param("uid") String uid, @Param("teamId") int teamId,
                              @Param("role") String role, @Param("uname") String uname);
+    @Select("SELECT * FROM team_member WHERE uid = #{uid}")
+    List<TeamMember> getTeamMembersByUserId(@Param("uid") String uid);
+
+    @Select("SELECT * FROM team_member WHERE uid = #{uid} AND role = #{role}")
+    List<TeamMember> getTeamMembersByUserIdAndRole(@Param("uid") String uid, @Param("role") String role);
 }

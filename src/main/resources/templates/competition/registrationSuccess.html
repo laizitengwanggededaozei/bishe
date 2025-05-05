@@ -24,17 +24,15 @@
 <script th:inline="javascript">
     // 获取会话中保存的matchId
     var matchId = [[${session.matchId}]];
-    if (!matchId) {
-        // 如果没有matchId，默认跳转到团队管理页面
-        setTimeout(function() {
-            window.location.href = "/team/manage";
-        }, 3000);
-    } else {
-        // 有matchId，跳转到参与比赛页面
-        setTimeout(function() {
+
+    // 无论是否有matchId，都跳转到对应比赛的参与页面
+    setTimeout(function() {
+        if (matchId) {
             window.location.href = "/competition-process/match/" + matchId;
-        }, 3000);
-    }
+        } else {
+            window.location.href = "/team/manage";
+        }
+    }, 3000);
 </script>
 </body>
 </html>

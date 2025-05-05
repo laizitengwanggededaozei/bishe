@@ -1,5 +1,6 @@
 package neu.competition.service.impl;
 
+import neu.competition.controller.RegistrationController;
 import neu.competition.entity.ParticipationRecord;
 import neu.competition.entity.Team;
 import neu.competition.entity.TeamMember;
@@ -10,6 +11,8 @@ import neu.competition.mapper.TeamMemberMapper;
 import neu.competition.mapper.UserMapper;
 import neu.competition.service.FileService;
 import neu.competition.service.TeamService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -17,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +43,7 @@ public class TeamServiceImpl implements TeamService {
     private UserMapper userMapper;
     @Autowired
     private JdbcTemplate jdbcTemplate;
-
+    private static final Logger logger = LoggerFactory.getLogger(RegistrationController.class);
     @Override
     public List<Team> getEligibleTeams(String userId, int matchId) {
         List<Team> teams = teamMapper.findEligibleTeams(userId, matchId);
@@ -92,15 +96,6 @@ public class TeamServiceImpl implements TeamService {
     }
 
 
-    @Override
-    public List<Team> getEligibleTeamsForUser(String userId, int matchId) {
-        List<Team> teams = teamMapper.getEligibleTeamsForUser(userId, matchId);
-        for (Team team : teams) {
-            List<TeamMember> members = teamMemberMapper.getTeamMembersByTeamId(team.getId());
-            team.setMembers(members);
-        }
-        return teams;
-    }
 
     @Override
     public List<TeamMember> getStudentMembersByTeamId(int teamId) {
@@ -291,10 +286,6 @@ public class TeamServiceImpl implements TeamService {
         }
         return teams;
     }
-    @Override
-    public Team getRegisteredTeamForMatch(String userId, int matchId) {
-        return teamMapper.getRegisteredTeamForMatch(userId, matchId);
-    }
 
     @Override
     public boolean isTeamLeader(String userId, int teamId) {
@@ -339,6 +330,55 @@ public class TeamServiceImpl implements TeamService {
         return teamMapper.getTeamRegistrationsForTeacher(teacherId, matchId);
     }
     @Override
+    public Team getRegisteredTeamForMatch(String userId, int matchId) {
+        try {
+            /// 找到用户作为队长或队员的所有团队ID
+            List<TeamMember> memberRecords = teamMemberMapper.getTeamMembersByUserId(userId);
+            if (memberRecords.isEmpty()) {
+                return null;
+            }
+
+            // 从这些团队中找出已经报名该比赛的团队
+            for (TeamMember member : memberRecords) {
+                int teamId = member.getTeamId();
+                boolean hasRegistered = participationRecordMapper.existsByTeamIdAndMatchId(teamId, matchId);
+                if (hasRegistered) {
+                    // 找到已报名团队，返回完整团队信息
+                    Team team = teamMapper.getTeamById(teamId);
+                    return team;
+                }
+            }
+
+            return null; // 未找到已报名团队
+        } catch (Exception e) {
+            logger.error("获取已报名团队时出错", e);
+            return null; // 出错时返回null
+        }
+    }
+
+    @Override
+    public List<Team> getEligibleTeamsForUser(String userId, int matchId) {
+        try {
+            // 获取用户可选团队（用户为队长的且未报名该比赛的团队）
+            List<Team> teams = teamMapper.getEligibleTeamsForUser(userId, matchId);
+
+            // 为每个团队加载成员信息
+            for (Team team : teams) {
+                List<TeamMember> members = teamMemberMapper.getTeamMembersByTeamId(team.getId());
+                team.setMembers(members);
+            }
+
+            return teams;
+        } catch (Exception e) {
+            logger.error("获取可选团队时出错", e);
+            return new ArrayList<>(); // 出错时返回空集合而非null
+        }
+    }
+
+
+
+
+    @Override
     @Transactional
     public void registerTeamForCompetition(int teamId, int matchId) {
         // 检查是否已经报名
@@ -359,6 +399,27 @@ public class TeamServiceImpl implements TeamService {
             }
         }
 
+        // 获取团队队长信息
+        TeamMember leader = teamMemberMapper.getTeamLeaderByTeamId(teamId);
+        if (leader == null) {
+            throw new IllegalStateException("团队必须有队长才能报名比赛");
+        }
+
+        // 检查队长是否已经带领其他团队参加了该比赛
+        String leaderId = leader.getUid();
+        List<TeamMember> leaderTeams = teamMemberMapper.getTeamMembersByUserIdAndRole(leaderId, "队长");
+
+        for (TeamMember leaderTeam : leaderTeams) {
+            int otherTeamId = leaderTeam.getTeamId();
+            if (otherTeamId != teamId) { // 排除当前团队
+                boolean hasRegistered = participationRecordMapper.existsByTeamIdAndMatchIdAndStatus(
+                        otherTeamId, matchId, "ACTIVE");
+                if (hasRegistered) {
+                    throw new IllegalStateException("队长已经带领其他团队参加了该比赛");
+                }
+            }
+        }
+
         // 创建新的报名记录
         ParticipationRecord record = new ParticipationRecord();
         record.setTeamId(teamId);
@@ -367,4 +428,5 @@ public class TeamServiceImpl implements TeamService {
         record.setRegistrationTime(LocalDateTime.now());
         participationRecordMapper.insert(record);
     }
+
 }
